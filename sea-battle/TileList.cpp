@@ -33,17 +33,17 @@ bool TileList::LoadTileSheet(SDL_Renderer* renderer, SDL_Surface* surface, int c
 
 	int imageWidth = surface->w;
 	int imageHeight = surface->h;
-	int cellCountX = static_cast<int>(floor(imageWidth / cellSize));
-	int cellCountY = static_cast<int>(floor(imageHeight / cellSize));
+	int cellCountInColumn = static_cast<int>(floor(imageWidth / cellSize));
+	int cellCountInRow = static_cast<int>(floor(imageHeight / cellSize));
 
-	cellsCount = cellCountX * cellCountY;
+	cellsCount = cellCountInColumn * cellCountInRow;
 	tiles.clear();
 
-	for (int x = 0; x < cellCountX; x++) {
-		for (int y = 0; y < cellCountY; y++) {
+	for (int row = 0; row < cellCountInColumn; row++) {
+		for (int column = 0; column < cellCountInRow; column++) {
 			SDL_FRect srcRect = {
-				static_cast<float>(x * cellSize),
-				static_cast<float>(y * cellSize),
+				static_cast<float>(row * cellSize),
+				static_cast<float>(column * cellSize),
 				static_cast<float>(cellSize),
 				static_cast<float>(cellSize)
 			};
@@ -65,10 +65,10 @@ SDL_FRect		  TileList::GetTileRect(int character) {
 	}
 	return tiles[character];
 }
-vector<SDL_FRect> TileList::GetTileList() {
+vector<SDL_FRect>& TileList::GetTileList() {
 	return tiles;
 }
 
-int TileList::GetCellsCount() const {
+const int TileList::GetCellsCount() const {
 	return cellsCount;
 }

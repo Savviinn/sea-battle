@@ -8,31 +8,31 @@ bool TileLogic::InitLogic() {
 	return !(mapArray.empty() || attackedTileArray.empty());
 }
 
-int TileLogic::AttackTile(int x, int y) {
-	if (x < 0 || x >= mapSize || y < 0 || y >= mapSize) {
+int TileLogic::AttackTile(int row, int column) {
+	if (row < 0 || row >= mapSize || column < 0 || column >= mapSize) {
 		return -1;
 	}
-	if (attackedTileArray[x][y] == true) {
+	if (attackedTileArray[row][column] == true) {
 		return -2;
 	}
-	attackedTileArray[x][y] = true;
-	mapArray[x][y] += static_cast<int>(attackedTileArray[x][y]);
+	attackedTileArray[row][column] = true;
+	mapArray[row][column] += static_cast<int>(attackedTileArray[row][column]);
 
-	return mapArray[x][y];
+	return mapArray[row][column];
 }
 
-int TileLogic::GetTile(int x, int y) {
-	if (x < 0 || x >= mapSize || y < 0 || y >= mapSize) {
+int TileLogic::GetTile(int row, int column) {
+	if (row < 0 || row >= mapSize || column < 0 || column >= mapSize) {
 		return -1;
 	}
-	return mapArray[x][y];
+	return mapArray[row][column];
 }
 
-vector<vector<int>> TileLogic::GetTileArray() {
+vector<vector<int>>& TileLogic::GetTileArray() {
 	return mapArray;
 }
 
-bool TileLogic::HasLost() const {
+const bool TileLogic::HasLost() const {
 	for (auto& row : mapArray) {
 		for (int tile : row) {
 			if (tile == 2) {

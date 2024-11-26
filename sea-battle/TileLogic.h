@@ -13,10 +13,10 @@ private:
 public:
 	TileLogic();
 	bool InitLogic();
-	int AttackTile(int x, int y);
-	int GetTile(int x, int y);
-	vector<vector<int>> GetTileArray();
-	bool HasLost() const;
+	int AttackTile(int row, int column);
+	int GetTile(int row, int column);
+	vector<vector<int>>& GetTileArray();
+	const bool HasLost() const;
 
 	static const int GetMapSize();
 };

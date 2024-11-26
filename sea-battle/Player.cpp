@@ -10,33 +10,37 @@ bool Player::InitPlayer(SDL_Renderer* renderer, SDL_Surface* tilesSurface, int c
 	return tileList.LoadTileSheet(renderer, tilesSurface, cellSize, fileName);
 }
 
-int Player::AttackOpponent(Player& opponent, int x, int y) {
+TileLogic Player::GetTileLogic() {
+	return tileLogic;
+}
+
+TileList Player::GetTileList() {
+	return tileList;
+}
+
+int Player::AttackPlayer(Player& player, int row, int column) {
 	if (!isTurn) {
 		return -1;
 	}
-	int attackResult = opponent.tileLogic.AttackTile(x, y);
+	int attackResult = player.tileLogic.AttackTile(row, column);
 	if (attackResult != 3) {
 		isTurn = false;
 	}
 	return attackResult;
 }
 
-bool Player::HasLost() {
-	return tileLogic.HasLost();
-}
-
 void Player::Render(SDL_Renderer* renderer, int offsetX, int offsetY) {
 	auto tiles = tileList.GetTileList();
 	int mapSize = TileLogic::GetMapSize();
 
-	for (int x = 0; x < mapSize; ++x) {
-		for (int y = 0; y < mapSize; ++y) {
-			int tileValue = tileLogic.GetTile(x, y);
+	for (int row = 0; row < mapSize; ++row) {
+		for (int column = 0; column < mapSize; ++column) {
+			int tileValue = tileLogic.GetTile(row, column);
 			SDL_FRect tileRect = tileList.GetTileRect(tileValue);
 
 			SDL_FRect destRect = {
-				static_cast<float>(offsetX + x * tileRect.w),
-				static_cast<float>(offsetY + y * tileRect.h),
+				static_cast<float>(offsetX + row * tileRect.w),
+				static_cast<float>(offsetY + column * tileRect.h),
 				tileRect.w,
 				tileRect.h
 			};
@@ -50,6 +54,10 @@ void Player::SetTurn(bool turn) {
 	isTurn = turn;
 }
 
-bool Player::IsTurn() {
+const bool Player::IsTurn() const{
 	return isTurn;
+}
+
+const bool Player::HasLost() const {
+	return tileLogic.HasLost();
 }

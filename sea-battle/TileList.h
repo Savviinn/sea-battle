@@ -18,9 +18,9 @@ public:
 
 	SDL_Texture* GetTileSheet();
 	SDL_FRect		  GetTileRect(int character);
-	vector<SDL_FRect> GetTileList();
+	vector<SDL_FRect>& GetTileList();
 
-	int GetCellsCount() const;
+	const int GetCellsCount() const;
 	~TileList()
 	{
 		if (tileSheet != nullptr) {

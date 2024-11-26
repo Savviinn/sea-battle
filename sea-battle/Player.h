@@ -13,10 +13,12 @@ public:
 	Player();
 
 	bool InitPlayer(SDL_Renderer* renderer, SDL_Surface* surface, int cellSize, const char* fileName = nullptr);
-	int AttackOpponent(Player& opponent, int x, int y);
+	TileLogic GetTileLogic();
+	TileList GetTileList();
+	int AttackPlayer(Player& player, int row, int column);
 	void Render(SDL_Renderer* renderer, int offsetX, int offsetY);
 	void SetTurn(bool turn);
-	bool IsTurn();
-	bool HasLost();
+	const bool IsTurn() const;
+	const bool HasLost() const;
 };
 
