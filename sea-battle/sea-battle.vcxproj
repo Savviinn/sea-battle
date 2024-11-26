@@ -152,10 +152,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Player.cpp" />
     <ClCompile Include="TileList.cpp" />
     <ClCompile Include="TileLogic.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Player.h" />
     <ClInclude Include="TileList.h" />
     <ClInclude Include="TileLogic.h" />
   </ItemGroup>

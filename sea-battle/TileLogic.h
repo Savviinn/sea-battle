@@ -18,6 +18,6 @@ public:
 	vector<vector<int>> GetTileArray();
 	bool HasLost() const;
 
-	int GetMapSize() const;
+	static const int GetMapSize();
 };
 

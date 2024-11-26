@@ -18,7 +18,7 @@ public:
 
 	SDL_Texture* GetTileSheet();
 	SDL_FRect		  GetTileRect(int character);
-	vector<SDL_FRect> GetTileArray();
+	vector<SDL_FRect> GetTileList();
 
 	int GetCellsCount() const;
 	~TileList()

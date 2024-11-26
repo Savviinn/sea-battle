@@ -65,7 +65,7 @@ SDL_FRect		  TileList::GetTileRect(int character) {
 	}
 	return tiles[character];
 }
-vector<SDL_FRect> TileList::GetTileArray() {
+vector<SDL_FRect> TileList::GetTileList() {
 	return tiles;
 }
 

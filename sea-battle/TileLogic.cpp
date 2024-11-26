@@ -43,6 +43,6 @@ bool TileLogic::HasLost() const {
 	return true;
 }
 
-int TileLogic::GetMapSize() const {
+const int TileLogic::GetMapSize() {
 	return mapSize;
 }
