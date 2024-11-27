@@ -1,20 +1,25 @@
 #include "Player.h"
+#include <iostream>
 
-Player::Player() : isTurn(false) {}
+Player::Player() : isTurn(false), tileLogic(), tileList() {}
 
 bool Player::InitPlayer(SDL_Renderer* renderer, SDL_Surface* tilesSurface, int cellSize, const char* fileName) {
 	if (!tileLogic.InitLogic()) {
+		cerr << "Init Logic error occured" << endl;
 		return false;
 	}
-
-	return tileList.LoadTileSheet(renderer, tilesSurface, cellSize, fileName);
+	if (!tileList.LoadTileSheet(renderer, tilesSurface, cellSize, fileName)) {
+		cerr << "Load Tile Sheet error occured" << endl;
+		return false;
+	}
+	return true;
 }
 
-TileLogic Player::GetTileLogic() {
+TileLogic& Player::GetTileLogic() {
 	return tileLogic;
 }
 
-TileList Player::GetTileList() {
+TileList& Player::GetTileList() {
 	return tileList;
 }
 
@@ -29,9 +34,10 @@ int Player::AttackPlayer(Player& player, int row, int column) {
 	return attackResult;
 }
 
-void Player::Render(SDL_Renderer* renderer, int offsetX, int offsetY) {
-	auto tiles = tileList.GetTileList();
+void Player::Render(SDL_Renderer* renderer, int offsetX, int offsetY, float finalCellSize) {
 	int mapSize = TileLogic::GetMapSize();
+
+	float finalSize = finalCellSize != NULL ? finalCellSize / mapSize : tileList.GetTileRect(0).h;
 
 	for (int row = 0; row < mapSize; ++row) {
 		for (int column = 0; column < mapSize; ++column) {
@@ -39,13 +45,17 @@ void Player::Render(SDL_Renderer* renderer, int offsetX, int offsetY) {
 			SDL_FRect tileRect = tileList.GetTileRect(tileValue);
 
 			SDL_FRect destRect = {
-				static_cast<float>(offsetX + row * tileRect.w),
-				static_cast<float>(offsetY + column * tileRect.h),
-				tileRect.w,
-				tileRect.h
+				static_cast<float>(offsetX + row * finalSize),
+				static_cast<float>(offsetY + column * finalSize),
+				finalSize,
+				finalSize
 			};
+			cout << "Rendering tile: " << tileValue << " at (" << destRect.x << ", " << destRect.y << ")" << endl;
 
-			SDL_RenderTexture(renderer, tileList.GetTileSheet(), &tileRect, &destRect);
+			if (!SDL_RenderTexture(renderer, tileList.GetTileSheet(), &tileRect, &destRect)) {
+				cerr << "SDL_RenderTexture error occured: " << SDL_GetError() << endl;
+				return;
+			}
 		}
 	}
 }

@@ -4,7 +4,7 @@
 #include <iostream>
 #include <string>
 
-#include "Player.h"
+#include "Game.h"
 
 using namespace std;
 
@@ -36,19 +36,11 @@ int SDL_main(int argc, char* argv[])
 		return -1;
 	}
 
-	Player player1;
-	Player player2;
-	player1.InitPlayer(renderer, tileSheetSurface, 32, "map.png");
-	player2.InitPlayer(renderer, tileSheetSurface, 32, "map.png");
-	player1.SetTurn(true);
-
-	player1.AttackPlayer(player2, 1, 3); //=B4
-	player1.AttackPlayer(player2, 3, 4);
-	player1.AttackPlayer(player2, 1, 1);
-
-	player2.SetTurn(true);
-	player2.AttackPlayer(player1, 4, 8); //=E9
-	player2.AttackPlayer(player1, 2, 3);
+	Game game;
+	game.InitGame(renderer, tileSheetSurface, 32, "map.png", "map.png");
+	
+	auto player1 = game.GetPlayer1();
+	auto player2 = game.GetPlayer2();
 
 	vector<Player> pps = { player1, player2 };
 
@@ -61,14 +53,18 @@ int SDL_main(int argc, char* argv[])
 			finalString += '\n';
 		}
 
-		for (int row = 0; row < p.GetTileLogic().GetMapSize(); row++) {
-			for (int column = 0; column < p.GetTileLogic().GetMapSize(); column++) {
-				finalString += to_string(p.GetTileLogic().GetTile(row, column)) + ' ';
-			}
-			finalString += '\n';
-		}
+		//for (int row = 0; row < TileLogic::GetMapSize(); row++) {
+		//	for (int column = 0; column < TileLogic::GetMapSize(); column++) {
+		//		finalString += to_string(p.GetTileLogic().GetTile(row, column)) + ' ';
+		//	}
+		//	finalString += '\n';
+		//}
 		cout << finalString << endl;
 	}
+
+	player1.Render(renderer, 0, 0, 32);
+	SDL_RenderPresent(renderer);
+
 
 
 
