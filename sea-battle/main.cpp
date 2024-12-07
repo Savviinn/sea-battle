@@ -5,6 +5,9 @@
 #include <string>
 
 #include "Game.h"
+#include "Player.h"
+#include "TileList.h"
+#include "test.h"
 
 using namespace std;
 
@@ -38,37 +41,34 @@ int SDL_main(int argc, char* argv[])
 
 	Game game;
 	game.InitGame(renderer, tileSheetSurface, 32, "map.png", "map.png");
+	game.LoadAdditionalTileSheet(renderer, tileSheetSurface, 16, "marking.png");
+	auto p1 = game.GetPlayer1();
+	auto p2 = game.GetPlayer2();
+	p1.SetTurn(true);p1.AttackPlayer(p2, 1, 0);
+	p1.AttackPlayer(p2, 1, 1);
+	p2.SetTurn(true);
+	p2.AttackPlayer(p1, 2, 2);
+	p2.AttackPlayer(p1, 3, 2);
+
+	float finalCellSize = min(
+		static_cast<float>(gameWindowWidth / 25.f), 
+		static_cast<float>(gameWindowHeight / 12.5f)
+	);
+
+	float gapSizeX = (gameWindowWidth - finalCellSize * 25.f) / 2.f + finalCellSize;
+	float gapSizeY = (gameWindowHeight - finalCellSize * 12.f) / 2.f + finalCellSize;
+
+	p1.Render(renderer, gapSizeX, gapSizeY, finalCellSize);
+	p2.Render(renderer, gapSizeX + finalCellSize * 13.f, gapSizeY, finalCellSize);
+	game.AdditionalRender(renderer, gapSizeX - finalCellSize, gapSizeY - finalCellSize, finalCellSize);
+	game.AdditionalRender(renderer, gapSizeX + finalCellSize * 12.f, gapSizeY - finalCellSize, finalCellSize);
 	
-	auto player1 = game.GetPlayer1();
-	auto player2 = game.GetPlayer2();
-
-	vector<Player> pps = { player1, player2 };
-
-	for (auto& p : pps) {
-		string finalString = "";
-		for (auto& row : p.GetTileLogic().GetTileArray()) {
-			for (auto tile : row) {
-				finalString += to_string(tile) + ' ';
-			}
-			finalString += '\n';
-		}
-
-		//for (int row = 0; row < TileLogic::GetMapSize(); row++) {
-		//	for (int column = 0; column < TileLogic::GetMapSize(); column++) {
-		//		finalString += to_string(p.GetTileLogic().GetTile(row, column)) + ' ';
-		//	}
-		//	finalString += '\n';
-		//}
-		cout << finalString << endl;
-	}
-
-	player1.Render(renderer, 0, 0, 32);
 	SDL_RenderPresent(renderer);
 
 
 
 
-	Sleep(10000);
+	Sleep(40000);
 	SDL_Quit();
 	return 0;
 }

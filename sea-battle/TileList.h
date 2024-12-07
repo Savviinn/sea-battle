@@ -3,6 +3,8 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_image.h>
 #include <vector>
+#include <iostream>
+#include <string>
 
 using namespace std;
 
@@ -12,13 +14,14 @@ private:
 	SDL_Texture* tileSheet;
 	vector<SDL_FRect> tiles;
 	int cellsCount;
+	
 public:
 	TileList();
-	bool LoadTileSheet(SDL_Renderer* renderer, SDL_Surface* surface, int cellSize, const char* fileName = nullptr);
 
+	bool LoadTileSheet(SDL_Renderer* renderer, SDL_Surface*& surface, int cellSize, const char* fileName = nullptr);
 	SDL_Texture* GetTileSheet();
-	SDL_FRect		   GetTileRect(int character);
-	vector<SDL_FRect>& GetTileList();
+	SDL_FRect		   GetTileRect(int character) const;
+	vector<SDL_FRect> GetTileList();
 
 	const int GetCellsCount() const;
 	~TileList()

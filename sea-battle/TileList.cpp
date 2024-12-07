@@ -1,10 +1,11 @@
 #include "TileList.h"
-#include <iostream>
-#include <string>
 
-TileList::TileList() : tileSheet(nullptr), cellsCount(0) {}
 
-bool TileList::LoadTileSheet(SDL_Renderer* renderer, SDL_Surface* surface, int cellSize, const char* fileName) {
+TileList::TileList() : tileSheet(nullptr), cellsCount(0) {
+	cout << "Null tile sheet: " << tileSheet << endl;
+}
+
+bool TileList::LoadTileSheet(SDL_Renderer* renderer, SDL_Surface*& surface, int cellSize, const char* fileName) {
 	if (!renderer) {
 		cerr << "Invalid renderer for tile sheet" << endl;
 		return false;
@@ -30,11 +31,12 @@ bool TileList::LoadTileSheet(SDL_Renderer* renderer, SDL_Surface* surface, int c
 		cerr << "Failed to create texture from surface: " << SDL_GetError() << endl;
 		return false;
 	}
+	SDL_SetTextureScaleMode(tileSheet, SDL_SCALEMODE_NEAREST);
 
 	int imageWidth = surface->w;
 	int imageHeight = surface->h;
-	int cellCountInColumn = static_cast<int>(floor(imageWidth / cellSize));
-	int cellCountInRow = static_cast<int>(floor(imageHeight / cellSize));
+	int cellCountInColumn = static_cast<int>(floor(imageHeight / cellSize));
+	int cellCountInRow = static_cast<int>(floor(imageWidth / cellSize));
 
 	cellsCount = cellCountInColumn * cellCountInRow;
 	tiles.clear();
@@ -42,14 +44,19 @@ bool TileList::LoadTileSheet(SDL_Renderer* renderer, SDL_Surface* surface, int c
 	for (int row = 0; row < cellCountInColumn; row++) {
 		for (int column = 0; column < cellCountInRow; column++) {
 			SDL_FRect srcRect = {
-				static_cast<float>(row * cellSize),
 				static_cast<float>(column * cellSize),
+				static_cast<float>(row * cellSize),
 				static_cast<float>(cellSize),
 				static_cast<float>(cellSize)
 			};
 			tiles.emplace_back(srcRect);
 		}
 	}
+	if (!tileSheet) {
+		cerr << "Ты даун" << endl;
+		return false;
+	}
+	cout << "TileList initialized with tileSheet: " << tileSheet << " " << tileSheet->w << " " << tileSheet->h << endl;
 
 	SDL_DestroySurface(surface);
 	return true;
@@ -58,14 +65,14 @@ bool TileList::LoadTileSheet(SDL_Renderer* renderer, SDL_Surface* surface, int c
 SDL_Texture* TileList::GetTileSheet() {
 	return tileSheet;
 }
-SDL_FRect		  TileList::GetTileRect(int character) {
+SDL_FRect		   TileList::GetTileRect(int character) const {
 	if (character < 0 || character >= cellsCount) {
 		cerr << "Invalid character index for tile" << endl;
-		return { 0, 0, 0, 0 };
+		return { NULL };
 	}
 	return tiles[character];
 }
-vector<SDL_FRect>& TileList::GetTileList() {
+vector<SDL_FRect> TileList::GetTileList() {
 	return tiles;
 }
 
