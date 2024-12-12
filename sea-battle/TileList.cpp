@@ -53,7 +53,6 @@ bool TileList::LoadTileSheet(SDL_Renderer* renderer, SDL_Surface*& surface, int 
 		}
 	}
 	if (!tileSheet) {
-		cerr << "Ты даун" << endl;
 		return false;
 	}
 	cout << "TileList initialized with tileSheet: " << tileSheet << " " << tileSheet->w << " " << tileSheet->h << endl;
@@ -62,18 +61,15 @@ bool TileList::LoadTileSheet(SDL_Renderer* renderer, SDL_Surface*& surface, int 
 	return true;
 }
 
-SDL_Texture* TileList::GetTileSheet() {
+SDL_Texture* TileList::GetTileSheet() const {
 	return tileSheet;
 }
-SDL_FRect		   TileList::GetTileRect(int character) const {
+const SDL_FRect TileList::GetTileRect(int character) const {
 	if (character < 0 || character >= cellsCount) {
 		cerr << "Invalid character index for tile" << endl;
 		return { NULL };
 	}
 	return tiles[character];
-}
-vector<SDL_FRect> TileList::GetTileList() {
-	return tiles;
 }
 
 const int TileList::GetCellsCount() const {

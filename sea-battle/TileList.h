@@ -19,9 +19,9 @@ public:
 	TileList();
 
 	bool LoadTileSheet(SDL_Renderer* renderer, SDL_Surface*& surface, int cellSize, const char* fileName = nullptr);
-	SDL_Texture* GetTileSheet();
-	SDL_FRect		   GetTileRect(int character) const;
-	vector<SDL_FRect> GetTileList();
+	SDL_Texture* GetTileSheet() const;
+
+	const SDL_FRect GetTileRect(int character) const;
 
 	const int GetCellsCount() const;
 	~TileList()

@@ -13,10 +13,12 @@ private:
 public:
 	TileLogic();
 	bool InitLogic();
+	bool PlaceShip(int startRow, int startCol, int length, bool isHorizontal);
 	int AttackTile(int row, int column);
-	int GetTile(int row, int column);
-	vector<vector<int>>& GetTileArray();
-	const bool HasLost() const;
+	const int  GetTile(int row, int column) const;
+	const bool GetAttackedTile(int row, int col) const;
+	const vector<vector<int>> GetTileArray() const;
+
 
 	static const int GetMapSize();
 };

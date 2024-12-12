@@ -1,29 +1,73 @@
 #include "Player.h"
 
+const float Player::CalculateFinalSize(float finalCellSize) const {
+	return finalCellSize != NULL ? finalCellSize : this->tileList.GetTileRect(0).h;
+}
+
 
 Player::Player() : isTurn(false) {}
 
 bool Player::InitPlayer(SDL_Renderer* renderer, SDL_Surface* tilesSurface, int cellSize, const char* fileName) {
-	return tileLogic.InitLogic() && tileList.LoadTileSheet(renderer, tilesSurface, cellSize, fileName);
+	return this->tileLogic.InitLogic() && this->tileList.LoadTileSheet(renderer, tilesSurface, cellSize, fileName);
 }
 
-SDL_Texture* Player::GetTileSheet() {
-	return tileList.GetTileSheet();
+SDL_Texture* Player::GetTileSheet() const{
+	return this->tileList.GetTileSheet();
 }
 
-int Player::AttackPlayer(Player& player, int row, int column) {
-	if (!isTurn) {
+bool Player::PlaceShip(int startRow, int startCol, int length, bool isHorizontal) {
+	if (TileLogic::GetMapSize() <= 0) {
+		cerr << "Invalid map size" << endl;
+		return false;
+	}
+	return this->tileLogic.PlaceShip(startRow, startCol, length, isHorizontal);
+}
+
+void Player::RandomizeShipLayout() {
+	int mapSize = TileLogic::GetMapSize();
+	if (mapSize <= 0) {
+		cerr << "Invalid map size" << endl;
+		return;
+	}
+
+
+	vector<pair<int, int>> shipConfig = {
+		{4, 1},
+		{3, 2},
+		{2, 3},
+		{1, 4}
+	};
+
+	random_device rd;
+	mt19937 gen(rd());
+	uniform_int_distribution<> coordDist(0, mapSize - 1);
+	uniform_int_distribution<> dirDist(0, 1);
+
+	for (const auto& [length, count] : shipConfig) {
+		int remainingShips = count;
+		while (remainingShips > 0) {
+			int  startRow     = coordDist(gen);
+			int  startCol     = coordDist(gen);
+			bool isHorizontal = static_cast<bool>(dirDist(gen));
+
+			if (this->tileLogic.PlaceShip(startRow, startCol, length, isHorizontal)) {
+				remainingShips--;
+			}
+		}
+	}
+
+	
+}
+
+int Player::AttackPlayerTile(Player& player, int row, int column) const {
+	if (!isTurn || this == &player) {
 		return -1;
 	}
 	int attackResult = player.tileLogic.AttackTile(row, column);
-	if (attackResult != 3) {
-		isTurn = false;
-	}
 	return attackResult;
 }
 
-void Player::RenderTile(SDL_Renderer* renderer, int row, int col, float offsetX, float offsetY, float finalCellSize) {
-	int tileValue = this->tileLogic.GetTile(row, col);
+void Player::RenderTile(SDL_Renderer* renderer, int tileValue, float offsetX, float offsetY, float finalCellSize) {
 	auto tileRect = this->tileList.GetTileRect(tileValue);
 	if (tileRect.w <= 0 || tileRect.h <= 0) {
 		cerr << "Invalid texture rectangle for tile: " << tileValue << endl;
@@ -31,8 +75,8 @@ void Player::RenderTile(SDL_Renderer* renderer, int row, int col, float offsetX,
 	}
 
 	SDL_FRect dstRect = {
-		static_cast<float>(offsetX + col * finalCellSize),
-		static_cast<float>(offsetY + row * finalCellSize),
+		offsetX,
+		offsetY,
 		finalCellSize,
 		finalCellSize
 	};
@@ -56,20 +100,80 @@ void Player::Render(SDL_Renderer* renderer, float offsetX, float offsetY, float 
 		cerr << "Get tile sheet error occured: " << endl;
 		return;
 	}
-	else {
-		cout << "Using " << this->GetTileSheet() << " tile sheet" << endl;
-	}
 
-	float finalSize = finalCellSize != NULL ? finalCellSize : this->tileList.GetTileRect(0).h;
+	float finalSize = CalculateFinalSize(finalCellSize);
 
-	for (int row = 0; row < mapSize; ++row) {
-		for (int col = 0; col < mapSize; ++col) {
-			RenderTile(renderer, row, col, offsetX, offsetY, finalSize);
+	for (int row = 0; row < mapSize; row++) {
+		for (int col = 0; col < mapSize; col++) {
+			RenderTile(
+				renderer, 
+				this->tileLogic.GetTile(row, col),
+				offsetX + col * finalCellSize, 
+				offsetY + row * finalCellSize, 
+				finalSize
+			);
 		}
 	}
 }
 
-void Player::RenderPositionedTile(SDL_Renderer* renderer, int row, int col, float offsetX, float offsetY, float finalCellSize) {
+void Player::RenderSpecificTile(SDL_Renderer* renderer, int row, int col, float offsetX, float offsetY, float finalCellSize) {
+	int mapSize = TileLogic::GetMapSize();
+	if (mapSize <= 0 || row < 0 || row >= mapSize || col < 0 || col >= mapSize) {
+		cerr << "Invalid map size or coordinates" << endl;
+		return;
+	}
+	if (!renderer) {
+		cerr << "Renderer is invalid" << endl;
+		return;
+	}
+	if (!this->GetTileSheet()) {
+		cerr << "Get tile sheet error occured: " << endl;
+		return;
+	}
+
+	float finalSize = CalculateFinalSize(finalCellSize);
+
+	RenderTile(
+		renderer, 
+		this->tileLogic.GetTile(row, col),
+		offsetX + col * finalCellSize, 
+		offsetY + row * finalCellSize, 
+		finalSize
+	);
+}
+
+void Player::RenderAttacked(SDL_Renderer* renderer, float offsetX, float offsetY, float finalCellSize) {
+	int mapSize = TileLogic::GetMapSize();
+	if (mapSize <= 0) {
+		cerr << "Invalid map size" << endl;
+		return;
+	}
+	if (!renderer) {
+		cerr << "Renderer is invalid" << endl;
+		return;
+	}
+	if (!this->GetTileSheet()) {
+		cerr << "Get tile sheet error occured: " << endl;
+		return;
+	}
+
+	float finalSize = CalculateFinalSize(finalCellSize);
+	for (int row = 0; row < mapSize; row++) {
+		for (int col = 0; col < mapSize; col++) {
+			auto tileValue = this->tileLogic.GetAttackedTile(row, col) ? this->tileLogic.GetTile(row, col) : 0;
+			RenderTile(
+				renderer,
+				tileValue,
+				offsetX + col * finalCellSize,
+				offsetY + row * finalCellSize,
+				finalSize
+			);
+		}
+	}
+}
+
+
+void Player::RenderAttackedTile(SDL_Renderer* renderer, int row, int col, float offsetX, float offsetY, float finalCellSize) {
 	if (TileLogic::GetMapSize() <= 0) {
 		cerr << "Invalid map size" << endl;
 		return;
@@ -83,9 +187,18 @@ void Player::RenderPositionedTile(SDL_Renderer* renderer, int row, int col, floa
 		return;
 	}
 
-	float finalSize = finalCellSize != NULL ? finalCellSize : this->tileList.GetTileRect(0).h;
-	
-	RenderTile(renderer, row, col, offsetX, offsetY, finalSize);
+	float finalSize = CalculateFinalSize(finalCellSize);
+	auto tileValue = this->tileLogic.GetAttackedTile(row, col) 
+		? this->tileLogic.GetTile(row, col) 
+		: 0;
+
+	RenderTile(
+		renderer,
+		tileValue,
+		offsetX + col * finalCellSize,
+		offsetY + row * finalCellSize,
+		finalSize
+	);
 }
 
 void Player::SetTurn(bool turn) {
@@ -97,5 +210,12 @@ const bool Player::IsTurn() const{
 }
 
 const bool Player::HasLost() const {
-	return tileLogic.HasLost();
+	for (auto& row : this->tileLogic.GetTileArray()) {
+		for (int tile : row) {
+			if (tile == 2) {
+				return false;
+			}
+		}
+	}
+	return true;
 }
