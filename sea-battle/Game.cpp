@@ -4,48 +4,33 @@ Game::Game() : player1(), player2() {}
 
 bool Game::InitGame(SDL_Renderer* renderer, SDL_Surface*& surface, int cellSize, const char* fileName) {
 	player1.SetTurn(true);
+	//if (
+	//	!player1.InitPlayer(renderer, surface, cellSize, fileName)
+	//	&& !player2.InitPlayer(renderer, surface, cellSize, fileName)
+	//) return false;
 	return 
-		player1.InitPlayer(renderer, surface, cellSize, fileName) 
-		&& player2.InitPlayer(renderer, surface, cellSize, fileName);
+		player1.InitPlayer(renderer, surface, cellSize, fileName) &&
+		player2.InitPlayer(renderer, surface, cellSize, fileName);
 }
 
-bool Game::LoadAdditionalTileSheet(SDL_Renderer* renderer, SDL_Surface*& surface, int cellSize, const char* fileName) {
-	return additionalTileSheet.LoadTileSheet(renderer, surface, cellSize, fileName);
+bool Game::LoadMarkingTileSheet(SDL_Renderer* renderer, SDL_Surface*& surface, int cellSize, const char* fileName) {
+	return markingTileSheet.LoadTileSheet(renderer, surface, cellSize, fileName);
 }
 
-//void Game::RenderOpponent(SDL_Renderer* renderer, Player& player, float offsetX, float offsetY, float finalCellSize) {
-//	int mapSize = TileLogic::GetMapSize();
-//	if (mapSize <= 0) {
-//		cerr << "Invalid map size" << endl;
-//		return;
-//	}
-//	if (!renderer) {
-//		cerr << "Renderer is invalid" << endl;
-//		return;
-//	}
-//	if (!player.GetTileSheet()) {
-//		cerr << "Get tile sheet error occured: " << endl;
-//		return;
-//	}
-//
-//	float finalSize = finalCellSize != NULL ? finalCellSize : player.tileList.GetTileRect(0).h;
-//
-//	for (int row = 0; row < mapSize; row++) {
-//		for (int col = 0; col < mapSize; col++) {
-//			if (attackedTile[row][col]) {
-//				RenderPositionedTile(renderer, row, col, offsetX, offsetY, finalSize);
-//			}
-//			else {
-//				RenderHiddenTile(renderer, row, col, offsetX, offsetY, finalSize);
-//			}
-//		}
-//	}
-//}
+bool Game::LoadGridTileSheet(SDL_Renderer* renderer, SDL_Surface*& surface, int cellSize, const char* fileName) {
+	return gridTileSheet.LoadTileSheet(renderer, surface, cellSize, fileName);
+}
 
-void Game::AdditionalRenderTile(SDL_Renderer* renderer, int index, float offsetX, float offsetY, float finalCellSize) {
-	auto tileRect = this->additionalTileSheet.GetTileRect(index);
+void Game::RandomizeShipLayout() {
+	auto& player = player1.IsTurn() ? player1 : player2;
+	player.RandomizeShipLayout();
+	SwitchTurn();
+}
+
+void Game::RenderMarkingTile(SDL_Renderer* renderer, int index, float offsetX, float offsetY, float finalCellSize) {
+	auto tileRect = this->markingTileSheet.GetTileRect(index);
 	if (tileRect.w <= 0 || tileRect.h <= 0) {
-		cerr << "Invalid texture rectangle for additional tile: " << index << endl;
+		cerr << "Invalid texture rectangle for marking tile: " << index << endl;
 		return;
 	}
 
@@ -56,21 +41,30 @@ void Game::AdditionalRenderTile(SDL_Renderer* renderer, int index, float offsetX
 		finalCellSize
 	};
 
-	if (!SDL_RenderTexture(renderer, this->additionalTileSheet.GetTileSheet(), &tileRect, &dstRect)) {
+	if (!SDL_RenderTexture(renderer, this->markingTileSheet.GetTileSheet(), &tileRect, &dstRect)) {
 		cerr << "SDL_RenderTexture occured: " << SDL_GetError() << endl;
 		return;
 	}
 }
 
-void Game::AdditionalRender(SDL_Renderer* renderer, float offsetX, float offsetY, float finalCellSize) {
+void Game::RenderPlayer(Player& player, SDL_Renderer* renderer, float offsetX, float offsetY, float finalCellSize) {
+	if (player.IsTurn()) {
+		player.Render(renderer, offsetX, offsetY, finalCellSize);
+	}
+	else {
+		player.RenderAttacked(renderer, offsetX, offsetY, finalCellSize);
+	}
+}
+
+void Game::RenderMarking(SDL_Renderer* renderer, float offsetX, float offsetY, float finalCellSize) {
 	if (!renderer) {
 		cerr << "Invalid renderer for tile sheet" << endl;
 		return;
 	}
 
-	for (int i = 0; i < this->additionalTileSheet.GetCellsCount(); i++) {
+	for (int i = 0; i < this->markingTileSheet.GetCellsCount(); i++) {
 		if (i < 10) {
-			AdditionalRenderTile(
+			RenderMarkingTile(
 				renderer, 
 				i, 
 				offsetX + finalCellSize + finalCellSize * i,
@@ -79,7 +73,7 @@ void Game::AdditionalRender(SDL_Renderer* renderer, float offsetX, float offsetY
 			);
 		}
 		else if (i < 20) {
-			AdditionalRenderTile(
+			RenderMarkingTile(
 				renderer, 
 				i, 
 				offsetX, 
@@ -90,9 +84,72 @@ void Game::AdditionalRender(SDL_Renderer* renderer, float offsetX, float offsetY
 	}
 }
 
+void Game::RenderGrid(SDL_Renderer* renderer, float offsetX, float offsetY, float finalCellSize) {
+	if (!renderer) {
+		cerr << "Invalid renderer for grid" << endl;
+		return;
+	}
 
+	auto tileRect = this->gridTileSheet.GetTileRect(0);
+	if (tileRect.w <= 0 || tileRect.h <= 0) {
+		cerr << "Invalid texture rectangle for grid tile: " << endl;
+		return;
+	}
+
+	SDL_FRect dstRect = {
+		offsetX,
+		offsetY,
+		finalCellSize,
+		finalCellSize
+	};
+
+	if (!SDL_RenderTexture(renderer, this->gridTileSheet.GetTileSheet(), &tileRect, &dstRect)) {
+		cerr << "SDL_RenderTexture occured: " << SDL_GetError() << endl;
+		return;
+	}
+}
+
+void Game::Render(SDL_Renderer* renderer, float offsetX, float offsetY, float finalCellSize) {
+	if (!renderer) {
+		cerr << "Invalid renderer for game" << endl;
+		return;
+	}
+
+	auto& player1 = this->player1;
+	auto& player2 = this->player2;
+
+	RenderPlayer(player1, renderer, offsetX, offsetY, finalCellSize);
+	RenderMarking(renderer, offsetX - finalCellSize, offsetY - finalCellSize, finalCellSize     );
+	RenderGrid(   renderer, offsetX - finalCellSize, offsetY - finalCellSize, finalCellSize * 11);	
+	
+	RenderPlayer(player2, renderer, offsetX + finalCellSize * 12.f, offsetY, finalCellSize);
+	RenderMarking(renderer, offsetX + finalCellSize * 11.f, offsetY - finalCellSize, finalCellSize	   );
+	RenderGrid(   renderer, offsetX + finalCellSize * 11.f, offsetY - finalCellSize, finalCellSize * 11);
+}
+
+bool Game::AttackOpponentTile(int row, int column) {
+	auto& player   = player1.IsTurn() ? player1 : player2;
+	auto& opponent = player1.IsTurn() ? player2 : player1;
+
+	auto result = player.AttackPlayerTile(opponent, row, column);
+	if (result == 3 || result == -2 || result == -1) {
+		return true;
+	}
+
+	SwitchTurn();
+	return false;
+}
 
 void Game::SwitchTurn() {
 	player1.SetTurn(!player1.IsTurn());
 	player2.SetTurn(!player2.IsTurn());
 }
+
+const bool Game::IsPlayer1Turn() const {
+	return player1.IsTurn();
+}
+
+const bool Game::IsWon() const {
+	return player1.HasLost() || player2.HasLost();
+}
+

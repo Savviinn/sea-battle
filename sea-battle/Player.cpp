@@ -16,20 +16,11 @@ SDL_Texture* Player::GetTileSheet() const{
 }
 
 bool Player::PlaceShip(int startRow, int startCol, int length, bool isHorizontal) {
-	if (TileLogic::GetMapSize() <= 0) {
-		cerr << "Invalid map size" << endl;
-		return false;
-	}
 	return this->tileLogic.PlaceShip(startRow, startCol, length, isHorizontal);
 }
 
 void Player::RandomizeShipLayout() {
 	int mapSize = TileLogic::GetMapSize();
-	if (mapSize <= 0) {
-		cerr << "Invalid map size" << endl;
-		return;
-	}
-
 
 	vector<pair<int, int>> shipConfig = {
 		{4, 1},
@@ -43,6 +34,8 @@ void Player::RandomizeShipLayout() {
 	uniform_int_distribution<> coordDist(0, mapSize - 1);
 	uniform_int_distribution<> dirDist(0, 1);
 
+	this->tileLogic.ResetTileArray();
+
 	for (const auto& [length, count] : shipConfig) {
 		int remainingShips = count;
 		while (remainingShips > 0) {
@@ -55,16 +48,13 @@ void Player::RandomizeShipLayout() {
 			}
 		}
 	}
-
-	
 }
 
-int Player::AttackPlayerTile(Player& player, int row, int column) const {
+int Player::AttackPlayerTile(Player& player, int row, int column) {
 	if (!isTurn || this == &player) {
 		return -1;
 	}
-	int attackResult = player.tileLogic.AttackTile(row, column);
-	return attackResult;
+	return player.tileLogic.AttackTile(row, column);
 }
 
 void Player::RenderTile(SDL_Renderer* renderer, int tileValue, float offsetX, float offsetY, float finalCellSize) {
@@ -88,10 +78,6 @@ void Player::RenderTile(SDL_Renderer* renderer, int tileValue, float offsetX, fl
 
 void Player::Render(SDL_Renderer* renderer, float offsetX, float offsetY, float finalCellSize) {
 	int mapSize = TileLogic::GetMapSize();
-	if (mapSize <= 0) {
-		cerr << "Invalid map size" << endl;
-		return;
-	}
 	if (!renderer) {
 		cerr << "Renderer is invalid" << endl;
 		return;
@@ -118,7 +104,7 @@ void Player::Render(SDL_Renderer* renderer, float offsetX, float offsetY, float 
 
 void Player::RenderSpecificTile(SDL_Renderer* renderer, int row, int col, float offsetX, float offsetY, float finalCellSize) {
 	int mapSize = TileLogic::GetMapSize();
-	if (mapSize <= 0 || row < 0 || row >= mapSize || col < 0 || col >= mapSize) {
+	if (row < 0 || row >= mapSize || col < 0 || col >= mapSize) {
 		cerr << "Invalid map size or coordinates" << endl;
 		return;
 	}
@@ -144,10 +130,6 @@ void Player::RenderSpecificTile(SDL_Renderer* renderer, int row, int col, float 
 
 void Player::RenderAttacked(SDL_Renderer* renderer, float offsetX, float offsetY, float finalCellSize) {
 	int mapSize = TileLogic::GetMapSize();
-	if (mapSize <= 0) {
-		cerr << "Invalid map size" << endl;
-		return;
-	}
 	if (!renderer) {
 		cerr << "Renderer is invalid" << endl;
 		return;
@@ -174,10 +156,6 @@ void Player::RenderAttacked(SDL_Renderer* renderer, float offsetX, float offsetY
 
 
 void Player::RenderAttackedTile(SDL_Renderer* renderer, int row, int col, float offsetX, float offsetY, float finalCellSize) {
-	if (TileLogic::GetMapSize() <= 0) {
-		cerr << "Invalid map size" << endl;
-		return;
-	}
 	if (!renderer) {
 		cerr << "Renderer is invalid" << endl;
 		return;

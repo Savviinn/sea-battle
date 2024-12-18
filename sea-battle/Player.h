@@ -23,7 +23,6 @@ public:
 	bool PlaceShip(int startRow, int startCol, int length, bool isHorizontal);
 	void RandomizeShipLayout();
 	
-	int AttackPlayerTile(Player& player, int row, int column) const;
 	
 	void Render(SDL_Renderer* renderer, float offsetX = NULL, float offsetY = NULL, float finalCellSize = NULL);
 	void RenderAttacked(SDL_Renderer* renderer, float offsetX = NULL, float offsetY = NULL, float finalCellSize = NULL);
@@ -31,6 +30,8 @@ public:
 	void RenderSpecificTile(SDL_Renderer* renderer, int row, int col, float offsetX = NULL, float offsetY = NULL, float finalCellSize = NULL);
 	void RenderAttackedTile(SDL_Renderer* renderer, int row, int col, float offsetX, float offsetY, float finalCellSize);
 	
+	int AttackPlayerTile(Player& player, int row, int column);
+
 	void SetTurn(bool turn);
 	const bool IsTurn() const;
 	

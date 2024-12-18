@@ -1,8 +1,4 @@
-#include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
-#include <Windows.h>
-#include <iostream>
-#include <string>
 
 #include "Game.h"
 #include "Options.h"
@@ -23,20 +19,10 @@ SDL_Texture*  tileSheet;
 
 int SDL_main(int argc, char* argv[])
 {
-	//if (!SDL_Init(SDL_INIT_VIDEO)) {
-	//	SDL_Quit();
-	//	return -1;
-	//}
-
 	if (!LoadOptions(basePath + optionsName, gameWindow, gameWindowWidth, gameWindowHeight, gameName)) {
 		return -1;
 	}
 
-	if (!gameWindow) { 
-		SDL_DestroyWindow(gameWindow);
-		SDL_Quit();
-		return -1;
-	}
 	renderer = SDL_CreateRenderer(gameWindow, NULL);
 	if (!renderer) {
 		SDL_Quit();
@@ -44,49 +30,74 @@ int SDL_main(int argc, char* argv[])
 	}
 
 	Game game;
-	game.InitGame(renderer, tileSheetSurface, 32, "map.png");
-	game.LoadAdditionalTileSheet(renderer, tileSheetSurface, 16, "marking.png");
-	auto p1 = game.GetPlayer1();
-	auto p2 = game.GetPlayer2();
+	game.InitGame(			  renderer, tileSheetSurface, 32,  "map.png"    );
+	game.LoadMarkingTileSheet(renderer, tileSheetSurface, 16,  "marking.png");
+	game.LoadGridTileSheet(	  renderer, tileSheetSurface, 176, "grid.png"   );
+	
+	string cursorPath = basePath + "tiles/cursor.png";
+	tileSheetSurface = IMG_Load(cursorPath.c_str());
+	if (!tileSheetSurface) {
+		cerr << "Failed to load cursor image: " << SDL_GetError() << endl;
+	}
+	tileSheet = SDL_CreateTextureFromSurface(renderer, tileSheetSurface);
+	if (!tileSheet) {
+		cerr << "Failed to create cursor texture: " << SDL_GetError() << endl;
+	}
+	SDL_DestroySurface(tileSheetSurface);
 
-	p1.PlaceShip(0, 0, 3, true);
-	p1.PlaceShip(3, 0, 5, true);
-	p1.PlaceShip(2, 1, 4, false);
-	p1.PlaceShip(-2, 0, 3, false);
+	SDL_Point cursorPos  = { 0, 0 };
+	SDL_FRect cursorRect = { 0, 0, 0, 0 };
 
-	p2.PlaceShip(0, 3, 4, true);
-	p2.PlaceShip(2, 3, 3, true);
-	p2.PlaceShip(0, 4, 3, false);
-	p2.PlaceShip(2, 3, 7, true);
-	p2.PlaceShip(10, 3, 4, true);
-
-	p1.SetTurn(true);
-	p1.AttackPlayerTile(p2, 0, 5);
-	p1.AttackPlayerTile(p2, 0, 6);
-	p1.AttackPlayerTile(p2, 0, 7);
-	p1.AttackPlayerTile(p2, 0, 8);
-
-	p2.SetTurn(true);
-	p2.AttackPlayerTile(p1, 2, 2);
-	p2.AttackPlayerTile(p1, 3, 2);
-
-	float finalCellSize = min(
-		static_cast<float>(gameWindowWidth / 24.f), 
-		static_cast<float>(gameWindowHeight / 12.f)
+	SDL_FRect gameWindowRect = { 0.f, 0.f, static_cast<float>(gameWindowWidth), static_cast<float>(gameWindowHeight) };
+	const float finalCellSize = min(
+		static_cast<float>(gameWindowWidth / 25.f), 
+		static_cast<float>(gameWindowHeight / 13.f)
 	);
+	const float gapSizeX = (gameWindowWidth  - finalCellSize * 25.f) / 2.f + finalCellSize * 2;
+	const float gapSizeY = (gameWindowHeight - finalCellSize * 13.f) / 2.f + finalCellSize * 2;
 
-	float gapSizeX = (gameWindowWidth - finalCellSize * 24.f) / 2.f + finalCellSize;
-	float gapSizeY = (gameWindowHeight - finalCellSize * 12.f) / 2.f + finalCellSize;
+	game.RandomizeShipLayout();
+	game.RandomizeShipLayout();
 
 	SDL_Event e;
 	bool running = true;
 	bool needsRedraw = true;
+
 	while (running) {
 		if (needsRedraw) {
-			p1.Render(renderer, gapSizeX, gapSizeY, finalCellSize);
-			p2.Render(renderer, gapSizeX + finalCellSize * 12.f, gapSizeY, finalCellSize);
-			game.AdditionalRender(renderer, gapSizeX - finalCellSize, gapSizeY - finalCellSize, finalCellSize);
-			game.AdditionalRender(renderer, gapSizeX + finalCellSize * 11.f, gapSizeY - finalCellSize, finalCellSize);
+			if (game.IsWon()) {
+				SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+				SDL_RenderFillRect(renderer, &gameWindowRect);
+				SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+				SDL_RenderPresent(renderer);
+				
+				SDL_Delay(3000);
+				running = false;
+			}
+
+			SDL_SetRenderDrawColor(renderer, 0, 162, 232, 255);
+			SDL_RenderFillRect(renderer, &gameWindowRect);
+			SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+			
+			game.Render(renderer, gapSizeX, gapSizeY, finalCellSize);
+
+			if (game.IsPlayer1Turn()) {
+				cursorRect = {
+					gapSizeX + finalCellSize * 12.f + cursorPos.x * finalCellSize,
+					gapSizeY + cursorPos.y * finalCellSize,
+					finalCellSize,
+					finalCellSize
+				};
+			}
+			else {
+				cursorRect = {
+					gapSizeX + cursorPos.x * finalCellSize,
+					gapSizeY + cursorPos.y * finalCellSize,
+					finalCellSize,
+					finalCellSize
+				};
+			}
+			SDL_RenderTexture(renderer, tileSheet, nullptr, &cursorRect);
 
 			SDL_RenderPresent(renderer);
 			needsRedraw = false;
@@ -102,9 +113,39 @@ int SDL_main(int argc, char* argv[])
 				running = false;
 				break;
 			case SDL_SCANCODE_R:
+				game.SwitchTurn();
 				needsRedraw = true;
 				break;
+			case SDL_SCANCODE_RETURN:
+				game.AttackOpponentTile(cursorPos.y, cursorPos.x);
+				needsRedraw = true;
+				break;
+			case SDL_SCANCODE_UP:
+				if (cursorPos.y > 0) { 
+					--cursorPos.y; 
+					needsRedraw = true;
+				}
+				break;
+			case SDL_SCANCODE_DOWN:
+				if (cursorPos.y < 9) { 
+					++cursorPos.y; 
+					needsRedraw = true;
+				}
+				break;
+			case SDL_SCANCODE_LEFT:
+				if (cursorPos.x > 0) { 
+					--cursorPos.x; 
+					needsRedraw = true;
+				}
+				break;
+			case SDL_SCANCODE_RIGHT:
+				if (cursorPos.x < 9) { 
+					++cursorPos.x; 
+					needsRedraw = true;
+				}
+				break;
 			default:
+				cout << e.key.scancode << endl;
 				break;
 			}
 		}

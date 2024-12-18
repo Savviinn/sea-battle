@@ -21,7 +21,7 @@ bool TileList::LoadTileSheet(SDL_Renderer* renderer, SDL_Surface*& surface, int 
 			return false;
 		}
 	}
-	else if (!surface) {
+	else if (!surface && !fileName) {
 		cerr << "No provided file for surface" << endl;
 		return false;
 	}
@@ -58,6 +58,8 @@ bool TileList::LoadTileSheet(SDL_Renderer* renderer, SDL_Surface*& surface, int 
 	cout << "TileList initialized with tileSheet: " << tileSheet << " " << tileSheet->w << " " << tileSheet->h << endl;
 
 	SDL_DestroySurface(surface);
+	surface = nullptr;
+
 	return true;
 }
 
