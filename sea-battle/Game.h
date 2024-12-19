@@ -1,19 +1,19 @@
 #pragma once
 
+#include <SDL3/SDL_ttf.h>
+
 #include "Player.h"
 
 class Game
 {
 private:
-	Player player1;
-	Player player2;
+	Player player;
+	Player playerBot;
 	TileList markingTileSheet;
 	TileList gridTileSheet;
 
-
 	void RenderMarkingTile(SDL_Renderer* renderer, int index, float offsetX, float offsetY, float finalCellSize);
 	
-	//void RenderOpponent(SDL_Renderer* renderer, float offsetX, float offsetY, float finalCellSize);
 	void RenderPlayer(Player& player, SDL_Renderer* renderer, float offsetX, float offsetY, float finalCellSize);
 	void RenderMarking(SDL_Renderer* renderer, float offsetX, float offsetY, float finalCellSize);
 	void RenderGrid(   SDL_Renderer* renderer, float offsetX, float offsetY, float finalCellSize);
@@ -24,15 +24,14 @@ public:
 	bool LoadGridTileSheet(	  SDL_Renderer* renderer, SDL_Surface*& surface, int cellSize, const char* fileName = nullptr);
 	
 	void Render(SDL_Renderer* renderer, float offsetX = NULL, float offsetY = NULL, float finalCellSize = NULL);
+	void RenderText(SDL_Renderer* renderer, float fontSize, TTF_Font* font, const string& text, SDL_Color color, float offsetX = NULL, float offsetY = NULL);
 
 	void RandomizeShipLayout();
 
 	bool AttackOpponentTile(int row, int column);
 
-	//Player& GetPlayer1() { return player1; }
-	//Player& GetPlayer2() { return player2; }
 	void SwitchTurn();
-	const bool IsPlayer1Turn() const;
-	const bool IsWon() const;
+	const bool IsPlayerTurn() const;
+	const int IsWon() const;
 };
 

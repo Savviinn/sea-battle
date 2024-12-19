@@ -1,16 +1,12 @@
 #include "Game.h"
 
-Game::Game() : player1(), player2() {}
+Game::Game() : player(), playerBot() {}
 
 bool Game::InitGame(SDL_Renderer* renderer, SDL_Surface*& surface, int cellSize, const char* fileName) {
-	player1.SetTurn(true);
-	//if (
-	//	!player1.InitPlayer(renderer, surface, cellSize, fileName)
-	//	&& !player2.InitPlayer(renderer, surface, cellSize, fileName)
-	//) return false;
+	player.SetTurn(true);
 	return 
-		player1.InitPlayer(renderer, surface, cellSize, fileName) &&
-		player2.InitPlayer(renderer, surface, cellSize, fileName);
+		player.InitPlayer(renderer, surface, cellSize, fileName) &&
+		playerBot.InitPlayer(renderer, surface, cellSize, fileName);
 }
 
 bool Game::LoadMarkingTileSheet(SDL_Renderer* renderer, SDL_Surface*& surface, int cellSize, const char* fileName) {
@@ -22,7 +18,7 @@ bool Game::LoadGridTileSheet(SDL_Renderer* renderer, SDL_Surface*& surface, int 
 }
 
 void Game::RandomizeShipLayout() {
-	auto& player = player1.IsTurn() ? player1 : player2;
+	auto& player = this->player.IsTurn() ? this->player : this->playerBot;
 	player.RandomizeShipLayout();
 	SwitchTurn();
 }
@@ -109,27 +105,76 @@ void Game::RenderGrid(SDL_Renderer* renderer, float offsetX, float offsetY, floa
 	}
 }
 
+void Game::RenderText(SDL_Renderer* renderer, float fontSize, TTF_Font* font, const string& text, SDL_Color color, float offsetX, float offsetY) {
+	SDL_Surface* textSurface = TTF_RenderText_Blended(font, text.c_str(), text.length(), color);
+	if (!textSurface) {
+		cerr << "Failed to create text surface: " << SDL_GetError() << endl;
+		return;
+	}
+	SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+	if (!textTexture) {
+		cerr << "Failed to create text texture: " << SDL_GetError() << endl;
+		SDL_DestroySurface(textSurface);
+		return;
+	}
+	SDL_FRect    textRect    = { offsetX - static_cast<float>(textSurface->w)/2.f, offsetY, static_cast<float>(textSurface->w), static_cast<float>(textSurface->h) };
+
+	SDL_RenderTexture(renderer, textTexture, NULL, &textRect);
+	SDL_DestroyTexture(textTexture);
+	SDL_DestroySurface(textSurface);
+}
+
+
 void Game::Render(SDL_Renderer* renderer, float offsetX, float offsetY, float finalCellSize) {
 	if (!renderer) {
 		cerr << "Invalid renderer for game" << endl;
 		return;
 	}
 
-	auto& player1 = this->player1;
-	auto& player2 = this->player2;
+	auto& player = this->player;
+	auto& playerBot = this->playerBot;
 
-	RenderPlayer(player1, renderer, offsetX, offsetY, finalCellSize);
+	RenderPlayer(player, renderer, offsetX, offsetY, finalCellSize);
 	RenderMarking(renderer, offsetX - finalCellSize, offsetY - finalCellSize, finalCellSize     );
 	RenderGrid(   renderer, offsetX - finalCellSize, offsetY - finalCellSize, finalCellSize * 11);	
 	
-	RenderPlayer(player2, renderer, offsetX + finalCellSize * 12.f, offsetY, finalCellSize);
+	RenderPlayer(playerBot, renderer, offsetX + finalCellSize * 12.f, offsetY, finalCellSize);
 	RenderMarking(renderer, offsetX + finalCellSize * 11.f, offsetY - finalCellSize, finalCellSize	   );
 	RenderGrid(   renderer, offsetX + finalCellSize * 11.f, offsetY - finalCellSize, finalCellSize * 11);
+	
+	string fontPath = SDL_GetBasePath() + string("fonts/UbuntuSansMono-Regular.ttf");
+	TTF_Font* font = TTF_OpenFont(fontPath.c_str(), finalCellSize);
+	if (font) {
+		SDL_Color color = { 255, 255, 255 };
+		string text = IsPlayerTurn() ? "PLAYER TURN" : "PLAYER";
+		RenderText(
+			renderer,
+			finalCellSize,
+			font,
+			text,
+			color,
+			offsetX + finalCellSize * 5,
+			offsetY + finalCellSize * 10
+		);
+
+		text = !IsPlayerTurn() ? "BOT TURN" : "BOT";
+		RenderText(
+			renderer,
+			finalCellSize,
+			font,
+			text,
+			color,
+			offsetX + finalCellSize * 17,
+			offsetY + finalCellSize * 10
+		);
+		TTF_CloseFont(font);
+	}
 }
 
+
 bool Game::AttackOpponentTile(int row, int column) {
-	auto& player   = player1.IsTurn() ? player1 : player2;
-	auto& opponent = player1.IsTurn() ? player2 : player1;
+	auto& player   = IsPlayerTurn() ? this->player : this->playerBot;
+	auto& opponent = IsPlayerTurn() ? this->playerBot : this->player;
 
 	auto result = player.AttackPlayerTile(opponent, row, column);
 	if (result == 3 || result == -2 || result == -1) {
@@ -141,15 +186,21 @@ bool Game::AttackOpponentTile(int row, int column) {
 }
 
 void Game::SwitchTurn() {
-	player1.SetTurn(!player1.IsTurn());
-	player2.SetTurn(!player2.IsTurn());
+	player.SetTurn(!player.IsTurn());
+	playerBot.SetTurn(!playerBot.IsTurn());
 }
 
-const bool Game::IsPlayer1Turn() const {
-	return player1.IsTurn();
+const bool Game::IsPlayerTurn() const {
+	return player.IsTurn();
 }
 
-const bool Game::IsWon() const {
-	return player1.HasLost() || player2.HasLost();
+const int Game::IsWon() const {
+	if (player.HasLost()) {
+		return 2;
+	}
+	if (playerBot.HasLost()) {
+		return 1;
+	}
+	return 0;
 }
 

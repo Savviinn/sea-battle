@@ -1,4 +1,5 @@
 #include <SDL3/SDL_main.h>
+#include <SDL3/SDL_ttf.h>
 
 #include "Game.h"
 #include "Options.h"
@@ -23,6 +24,13 @@ int SDL_main(int argc, char* argv[])
 		return -1;
 	}
 
+	if (!TTF_Init()) {
+		cerr << "Failed to initialize TTF: " << SDL_GetError() << endl;
+		TTF_Quit();
+		SDL_Quit();
+		return -1;
+	}
+
 	renderer = SDL_CreateRenderer(gameWindow, NULL);
 	if (!renderer) {
 		SDL_Quit();
@@ -33,7 +41,7 @@ int SDL_main(int argc, char* argv[])
 	game.InitGame(			  renderer, tileSheetSurface, 32,  "map.png"    );
 	game.LoadMarkingTileSheet(renderer, tileSheetSurface, 16,  "marking.png");
 	game.LoadGridTileSheet(	  renderer, tileSheetSurface, 176, "grid.png"   );
-	
+
 	string cursorPath = basePath + "tiles/cursor.png";
 	tileSheetSurface = IMG_Load(cursorPath.c_str());
 	if (!tileSheetSurface) {
@@ -46,7 +54,7 @@ int SDL_main(int argc, char* argv[])
 	SDL_DestroySurface(tileSheetSurface);
 
 	SDL_Point cursorPos  = { 0, 0 };
-	SDL_FRect cursorRect = { 0, 0, 0, 0 };
+	SDL_FRect cursorRect = {};
 
 	SDL_FRect gameWindowRect = { 0.f, 0.f, static_cast<float>(gameWindowWidth), static_cast<float>(gameWindowHeight) };
 	const float finalCellSize = min(
@@ -66,13 +74,23 @@ int SDL_main(int argc, char* argv[])
 	while (running) {
 		if (needsRedraw) {
 			if (game.IsWon()) {
-				SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+				SDL_SetRenderDrawColor(renderer, 0, 162, 232, 255);
 				SDL_RenderFillRect(renderer, &gameWindowRect);
 				SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+
+				string fontPath = basePath + string("fonts/UbuntuSansMono-Regular.ttf");
+				TTF_Font* font = TTF_OpenFont(fontPath.c_str(), finalCellSize);
+				if (font) {
+					string text = game.IsWon() == 1 ? "CONGRATULATIONS! YOU WON!" : "YOU LOST!";
+					game.RenderText(renderer, finalCellSize * 6, font, text, {255, 255, 255}, gameWindowWidth/2.f, gameWindowHeight/2.f - finalCellSize);
+				}
+
 				SDL_RenderPresent(renderer);
-				
+
+
 				SDL_Delay(3000);
 				running = false;
+				break;
 			}
 
 			SDL_SetRenderDrawColor(renderer, 0, 162, 232, 255);
@@ -81,7 +99,7 @@ int SDL_main(int argc, char* argv[])
 			
 			game.Render(renderer, gapSizeX, gapSizeY, finalCellSize);
 
-			if (game.IsPlayer1Turn()) {
+			if (game.IsPlayerTurn()) {
 				cursorRect = {
 					gapSizeX + finalCellSize * 12.f + cursorPos.x * finalCellSize,
 					gapSizeY + cursorPos.y * finalCellSize,
