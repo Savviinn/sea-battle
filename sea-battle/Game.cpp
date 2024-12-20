@@ -148,7 +148,7 @@ void Game::Render(SDL_Renderer* renderer, float offsetX, float offsetY, float fi
 	TTF_Font* font = TTF_OpenFont(fontPath.c_str(), finalCellSize);
 	if (font) {
 		SDL_Color color = { 255, 255, 255 };
-		string text = IsPlayerTurn() ? "PLAYER TURN" : "PLAYER";
+		string text = "PLAYER";
 		RenderText(
 			renderer,
 			finalCellSize,
@@ -159,7 +159,7 @@ void Game::Render(SDL_Renderer* renderer, float offsetX, float offsetY, float fi
 			offsetY + finalCellSize * 10
 		);
 
-		text = !IsPlayerTurn() ? "BOT TURN" : "BOT";
+		text = "BOT";
 		RenderText(
 			renderer,
 			finalCellSize,
