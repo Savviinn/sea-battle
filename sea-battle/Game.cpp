@@ -18,9 +18,11 @@ bool Game::LoadGridTileSheet(SDL_Renderer* renderer, SDL_Surface*& surface, int 
 }
 
 void Game::RandomizeShipLayout() {
-	auto& player = this->player.IsTurn() ? this->player : this->playerBot;
-	player.RandomizeShipLayout();
-	SwitchTurn();
+	//auto& player = this->player.IsTurn() ? this->player : this->playerBot;
+	//player.RandomizeShipLayout();
+	//SwitchTurn();
+	this->player.RandomizeShipLayout();
+	this->playerBot.RandomizeShipLayout();
 }
 
 void Game::RenderMarkingTile(SDL_Renderer* renderer, int index, float offsetX, float offsetY, float finalCellSize) {
@@ -172,16 +174,30 @@ void Game::Render(SDL_Renderer* renderer, float offsetX, float offsetY, float fi
 }
 
 
-bool Game::AttackOpponentTile(int row, int column) {
-	auto& player   = IsPlayerTurn() ? this->player : this->playerBot;
-	auto& opponent = IsPlayerTurn() ? this->playerBot : this->player;
-
-	auto result = player.AttackPlayerTile(opponent, row, column);
-	if (result == 3 || result == -2 || result == -1) {
-		return true;
+bool Game::AttackBotTile(int row, int column) {
+	//auto& player   = IsPlayerTurn() ? this->player : this->playerBot;
+	//auto& opponent = IsPlayerTurn() ? this->playerBot : this->player;
+	if (this->player.IsTurn()) {
+		auto result = this->player.AttackPlayerTile(this->playerBot, row, column);
+		if (result == 3 || result == -2 || result == -1) {
+			return true;
+		}
 	}
 
 	SwitchTurn();
+	return false;
+}
+
+bool Game::BotAttackCycle() {
+	if (this->playerBot.IsTurn()) {
+		int result = this->playerBot.BotAttack(this->player);
+		if (result == 3 || result == -2 || result == -1) {
+			return BotAttackCycle();
+		}
+
+		SwitchTurn();
+		return false;
+	}
 	return false;
 }
 

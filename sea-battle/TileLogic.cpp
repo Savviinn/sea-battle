@@ -5,13 +5,13 @@ TileLogic::TileLogic() {}
 
 bool TileLogic::InitLogic() {
 	attackedTileArray = vector<vector<bool>>(mapSize, vector<bool>(mapSize, false));
-	mapArray = vector<vector<int>>(mapSize, vector<int>(mapSize, 0));
-	return !(mapArray.empty() || attackedTileArray.empty());
+	tileArray = vector<vector<int>>(mapSize, vector<int>(mapSize, 0));
+	return !(tileArray.empty() || attackedTileArray.empty());
 }
 
 void TileLogic::ResetTileArray() {
 	bool isOccupied = false;
-	for (auto& row : mapArray) {
+	for (auto& row : tileArray) {
 		for (auto tile : row) {
 			if (tile != 0) {
 				isOccupied = true;
@@ -24,7 +24,7 @@ void TileLogic::ResetTileArray() {
 	}
 
 	if (isOccupied) {
-		for (auto& row : mapArray) {
+		for (auto& row : tileArray) {
 			fill(row.begin(), row.end(), 0);
 		}
 	}
@@ -47,24 +47,22 @@ bool TileLogic::PlaceShip(int startRow, int startCol, int length, bool isHorizon
 
 	for (int row = topRow; row <= bottomRow; row++) {
 		for (int col = leftCol; col <= rightCol; col++) {
-			if (mapArray[row][col] != 0) {
+			if (tileArray[row][col] != 0) {
 				return false;
 			}
 		}
 	}
 
 	for (int i = 0; i < length; i++) {
-		mapArray[startRow + (isHorizontal ? 0 : i)][startCol + (isHorizontal ? i : 0)] = 2;
+		tileArray[startRow + (isHorizontal ? 0 : i)][startCol + (isHorizontal ? i : 0)] = 2;
 	}
 	return true;
 }
 
-void TileLogic::TryRevealTiles(int row, int column) {
-	if (mapArray[row][column] != 3) {
-		return;
+pair<bool, vector<pair<int, int>>> TileLogic::IsShipDestroyed(int row, int column) {
+	if (tileArray[row][column] != 3) {
+		return { false, {} };
 	}
-
-	bool isDestroyed = true;
 
 	vector<pair<int, int>> shipSearch = {
 		{-1, 0}, {1, 0}, {0, -1}, {0, 1}
@@ -86,12 +84,11 @@ void TileLogic::TryRevealTiles(int row, int column) {
 				continue;
 			}
 
-			if (mapArray[searchRow][searchCol] == 2) {
-				isDestroyed = false;
-				break;
+			if (tileArray[searchRow][searchCol] == 2) {
+				return { false, {} };
 			}
 
-			if (mapArray[searchRow][searchCol] == 3 &&
+			if (tileArray[searchRow][searchCol] == 3 &&
 				find(
 					destroyedShipCoords.begin(),
 					destroyedShipCoords.end(),
@@ -101,13 +98,15 @@ void TileLogic::TryRevealTiles(int row, int column) {
 				destroyedShipCoords.push_back({ searchRow, searchCol });
 			}
 		}
-		if (!isDestroyed) {
-			break;
-		}
 	}
+	return { true, destroyedShipCoords };
+}
 
-	if (isDestroyed) {
-		for (const auto& coord : destroyedShipCoords) {
+void TileLogic::TryRevealTiles(int row, int column) {
+	auto isDestroyed = IsShipDestroyed(row, column);
+
+	if (isDestroyed.first) {
+		for (const auto& coord : isDestroyed.second) {
 			int currentRow = coord.first;
 			int currentCol = coord.second;
 
@@ -120,9 +119,9 @@ void TileLogic::TryRevealTiles(int row, int column) {
 						continue;
 					}
 
-					if (mapArray[revealRow][revealCol] == 0) {
+					if (tileArray[revealRow][revealCol] == 0) {
 						attackedTileArray[revealRow][revealCol] = true;
-						mapArray[revealRow][revealCol] += static_cast<int>(attackedTileArray[revealRow][revealCol]);
+						tileArray[revealRow][revealCol] += static_cast<int>(attackedTileArray[revealRow][revealCol]);
 					}
 				}
 			}
@@ -140,23 +139,23 @@ int TileLogic::AttackTile(int row, int column) {
 		return -2;
 	}
 	attackedTileArray[row][column] = true;
-	mapArray[row][column] += static_cast<int>(attackedTileArray[row][column]);
-	if (mapArray[row][column] == 3) {
+	tileArray[row][column] += static_cast<int>(attackedTileArray[row][column]);
+	if (tileArray[row][column] == 3) {
 		TryRevealTiles(row, column);
 	}
 
-	return mapArray[row][column];
+	return tileArray[row][column];
 }
 
 const int TileLogic::GetTile(int row, int column) const {
 	if (row < 0 || row >= mapSize || column < 0 || column >= mapSize) {
 		return -1;
 	}
-	return mapArray[row][column];
+	return tileArray[row][column];
 }
 
 const vector<vector<int>> TileLogic::GetTileArray() const{
-	return mapArray;
+	return tileArray;
 }
 
 const bool TileLogic::GetAttackedTile(int row, int col) const {

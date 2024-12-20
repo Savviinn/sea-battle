@@ -3,12 +3,13 @@
 #include <SDL3/SDL_ttf.h>
 
 #include "Player.h"
+#include "Bot.h"
 
 class Game
 {
 private:
 	Player player;
-	Player playerBot;
+	Bot playerBot;
 	TileList markingTileSheet;
 	TileList gridTileSheet;
 
@@ -28,7 +29,8 @@ public:
 
 	void RandomizeShipLayout();
 
-	bool AttackOpponentTile(int row, int column);
+	bool AttackBotTile(int row, int column);
+	bool BotAttackCycle();
 
 	void SwitchTurn();
 	const bool IsPlayerTurn() const;

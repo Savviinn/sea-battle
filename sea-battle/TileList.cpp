@@ -2,12 +2,12 @@
 
 
 TileList::TileList() : tileSheet(nullptr), cellsCount(0) {
-	cout << "Null tile sheet: " << tileSheet << endl;
+	//cout << "Null tile sheet: " << tileSheet << endl;
 }
 
 bool TileList::LoadTileSheet(SDL_Renderer* renderer, SDL_Surface*& surface, int cellSize, const char* fileName) {
 	if (!renderer) {
-		cerr << "Invalid renderer for tile sheet" << endl;
+		//cerr << "Invalid renderer for tile sheet" << endl;
 		return false;
 	}
 
@@ -55,7 +55,7 @@ bool TileList::LoadTileSheet(SDL_Renderer* renderer, SDL_Surface*& surface, int 
 	if (!tileSheet) {
 		return false;
 	}
-	cout << "TileList initialized with tileSheet: " << tileSheet << " " << tileSheet->w << " " << tileSheet->h << endl;
+	//cout << "TileList initialized with tileSheet: " << tileSheet << " " << tileSheet->w << " " << tileSheet->h << endl;
 
 	SDL_DestroySurface(surface);
 	surface = nullptr;

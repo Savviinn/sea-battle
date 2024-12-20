@@ -64,7 +64,7 @@ int SDL_main(int argc, char* argv[])
 	const float gapSizeX = (gameWindowWidth  - finalCellSize * 25.f) / 2.f + finalCellSize * 2;
 	const float gapSizeY = (gameWindowHeight - finalCellSize * 13.f) / 2.f + finalCellSize * 2;
 
-	game.RandomizeShipLayout();
+	//game.RandomizeShipLayout();
 	game.RandomizeShipLayout();
 
 	SDL_Event e;
@@ -82,7 +82,7 @@ int SDL_main(int argc, char* argv[])
 				TTF_Font* font = TTF_OpenFont(fontPath.c_str(), finalCellSize);
 				if (font) {
 					string text = game.IsWon() == 1 ? "CONGRATULATIONS! YOU WON!" : "YOU LOST!";
-					game.RenderText(renderer, finalCellSize * 6, font, text, {255, 255, 255}, gameWindowWidth/2.f, gameWindowHeight/2.f - finalCellSize);
+					game.RenderText(renderer, finalCellSize * 6, font, text, {255, 255, 255}, gameWindowWidth/2.f, gameWindowHeight/2.f);
 				}
 
 				SDL_RenderPresent(renderer);
@@ -93,6 +93,8 @@ int SDL_main(int argc, char* argv[])
 				break;
 			}
 
+			game.BotAttackCycle();
+
 			SDL_SetRenderDrawColor(renderer, 0, 162, 232, 255);
 			SDL_RenderFillRect(renderer, &gameWindowRect);
 			SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
@@ -102,14 +104,6 @@ int SDL_main(int argc, char* argv[])
 			if (game.IsPlayerTurn()) {
 				cursorRect = {
 					gapSizeX + finalCellSize * 12.f + cursorPos.x * finalCellSize,
-					gapSizeY + cursorPos.y * finalCellSize,
-					finalCellSize,
-					finalCellSize
-				};
-			}
-			else {
-				cursorRect = {
-					gapSizeX + cursorPos.x * finalCellSize,
 					gapSizeY + cursorPos.y * finalCellSize,
 					finalCellSize,
 					finalCellSize
@@ -135,7 +129,7 @@ int SDL_main(int argc, char* argv[])
 				needsRedraw = true;
 				break;
 			case SDL_SCANCODE_RETURN:
-				game.AttackOpponentTile(cursorPos.y, cursorPos.x);
+				game.AttackBotTile(cursorPos.y, cursorPos.x);
 				needsRedraw = true;
 				break;
 			case SDL_SCANCODE_UP:
