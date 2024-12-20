@@ -1,5 +1,5 @@
-#include <SDL3/SDL_main.h>
 #include <SDL3/SDL_ttf.h>
+#include <SDL3/SDL_main.h>
 
 #include "Game.h"
 #include "Options.h"

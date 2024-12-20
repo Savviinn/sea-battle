@@ -1,4 +1,5 @@
 #include "TileLogic.h"
+
 #include <iostream>
 
 TileLogic::TileLogic() {}

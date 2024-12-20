@@ -71,23 +71,23 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\IT\!Libs\SDL3\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\IT\!Libs\SDL3\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\IT\!C\sea-battle\SDL3\include;C:\IT\!C\sea-battle\sea-battle\SDL3;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\IT\!C\sea-battle\SDL3\lib;$(LibraryPath)</LibraryPath>
     <SourcePath>$(SourcePath)</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>C:\IT\!Libs\SDL3\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\IT\!Libs\SDL3\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\IT\!C\sea-battle\SDL3\include;C:\IT\!C\sea-battle\sea-battle\SDL3;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\IT\!C\sea-battle\SDL3\lib;$(LibraryPath)</LibraryPath>
     <SourcePath>$(SourcePath)</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\IT\!Libs\SDL3\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\IT\!Libs\SDL3\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\IT\!C\sea-battle\SDL3\include;C:\IT\!C\sea-battle\sea-battle\SDL3;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\IT\!C\sea-battle\SDL3\lib;$(LibraryPath)</LibraryPath>
     <SourcePath>$(SourcePath)</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>C:\IT\!Libs\SDL3\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\IT\!Libs\SDL3\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\IT\!C\sea-battle\SDL3\include;C:\IT\!C\sea-battle\sea-battle\SDL3;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\IT\!C\sea-battle\SDL3\lib;$(LibraryPath)</LibraryPath>
     <SourcePath>$(SourcePath)</SourcePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
