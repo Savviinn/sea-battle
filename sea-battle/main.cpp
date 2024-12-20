@@ -64,7 +64,6 @@ int SDL_main(int argc, char* argv[])
 	const float gapSizeX = (gameWindowWidth  - finalCellSize * 25.f) / 2.f + finalCellSize * 2;
 	const float gapSizeY = (gameWindowHeight - finalCellSize * 13.f) / 2.f + finalCellSize * 2;
 
-	//game.RandomizeShipLayout();
 	game.RandomizeShipLayout();
 
 	SDL_Event e;
@@ -124,10 +123,6 @@ int SDL_main(int argc, char* argv[])
 			case SDL_SCANCODE_ESCAPE:
 				running = false;
 				break;
-			case SDL_SCANCODE_R:
-				game.SwitchTurn();
-				needsRedraw = true;
-				break;
 			case SDL_SCANCODE_RETURN:
 				game.AttackBotTile(cursorPos.y, cursorPos.x);
 				needsRedraw = true;
@@ -157,7 +152,6 @@ int SDL_main(int argc, char* argv[])
 				}
 				break;
 			default:
-				cout << e.key.scancode << endl;
 				break;
 			}
 		}

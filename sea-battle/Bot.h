@@ -4,8 +4,6 @@
 class Bot : public Player 
 {
 private:
-	//int i;
-
 	mt19937 gen;
 	uniform_int_distribution<int> rdRowDistr;
 	uniform_int_distribution<int> rdColDistr;
