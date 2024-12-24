@@ -1,6 +1,6 @@
 #include "Game.h"
 
-Game::Game() : player(), playerBot() {}
+Game::Game() : player(), playerBot(), statsFilePath(""), canReceiveStats(true) {}
 
 bool Game::InitGame(SDL_Renderer* renderer, SDL_Surface*& surface, int cellSize, const char* fileName) {
 	player.SetTurn(true);
@@ -17,12 +17,20 @@ bool Game::LoadGridTileSheet(SDL_Renderer* renderer, SDL_Surface*& surface, int 
 	return gridTileSheet.LoadTileSheet(renderer, surface, cellSize, fileName);
 }
 
-void Game::RandomizeShipLayout() {
-	//auto& player = this->player.IsTurn() ? this->player : this->playerBot;
-	//player.RandomizeShipLayout();
-	//SwitchTurn();
-	this->player.RandomizeShipLayout();
-	this->playerBot.RandomizeShipLayout();
+bool Game::LoadStatistic(const string& filePath, string& playerName) {
+	this->statsFilePath = filePath;
+
+	string botName = "BOT";
+	playerBot.LoadStatistics(this->statsFilePath, botName);
+
+	player.LoadStatistics(this->statsFilePath, playerName);
+
+	return true;
+}
+
+void Game::RandomizeShipLayout(bool isPlayer) {
+	auto& player = isPlayer ? this->player : this->playerBot;
+	player.RandomizeShipLayout();
 }
 
 void Game::RenderMarkingTile(SDL_Renderer* renderer, int index, float offsetX, float offsetY, float finalCellSize) {
@@ -107,7 +115,7 @@ void Game::RenderGrid(SDL_Renderer* renderer, float offsetX, float offsetY, floa
 	}
 }
 
-void Game::RenderText(SDL_Renderer* renderer, float fontSize, TTF_Font* font, const string& text, SDL_Color color, float offsetX, float offsetY) {
+void Game::RenderText(SDL_Renderer* renderer, TTF_Font* font, const string& text, SDL_Color color, float offsetX, float offsetY) {
 	SDL_Surface* textSurface = TTF_RenderText_Blended(font, text.c_str(), text.length(), color);
 	if (!textSurface) {
 		cerr << "Failed to create text surface: " << SDL_GetError() << endl;
@@ -119,7 +127,7 @@ void Game::RenderText(SDL_Renderer* renderer, float fontSize, TTF_Font* font, co
 		SDL_DestroySurface(textSurface);
 		return;
 	}
-	SDL_FRect    textRect    = { offsetX - static_cast<float>(textSurface->w)/2.f, offsetY, static_cast<float>(textSurface->w), static_cast<float>(textSurface->h) };
+	SDL_FRect    textRect    = { offsetX - static_cast<float>(textSurface->w)/2.f, offsetY, static_cast<float>(textSurface->w), static_cast<float>(textSurface->h)};
 
 	SDL_RenderTexture(renderer, textTexture, NULL, &textRect);
 	SDL_DestroyTexture(textTexture);
@@ -127,52 +135,69 @@ void Game::RenderText(SDL_Renderer* renderer, float fontSize, TTF_Font* font, co
 }
 
 
-void Game::Render(SDL_Renderer* renderer, float offsetX, float offsetY, float finalCellSize) {
+void Game::Render(SDL_Renderer* renderer, bool isPlayer, float offsetX, float offsetY, float finalCellSize) {
 	if (!renderer) {
 		cerr << "Invalid renderer for game" << endl;
 		return;
 	}
 
-	auto& player = this->player;
-	auto& playerBot = this->playerBot;
+	auto& player = isPlayer ? this->player : this->playerBot;
+	float finalOffsetX = isPlayer ? offsetX : offsetX + finalCellSize * 12.f;
 
-	RenderPlayer(player, renderer, offsetX, offsetY, finalCellSize);
-	RenderMarking(renderer, offsetX - finalCellSize, offsetY - finalCellSize, finalCellSize     );
-	RenderGrid(   renderer, offsetX - finalCellSize, offsetY - finalCellSize, finalCellSize * 11);	
-	
-	RenderPlayer(playerBot, renderer, offsetX + finalCellSize * 12.f, offsetY, finalCellSize);
-	RenderMarking(renderer, offsetX + finalCellSize * 11.f, offsetY - finalCellSize, finalCellSize	   );
-	RenderGrid(   renderer, offsetX + finalCellSize * 11.f, offsetY - finalCellSize, finalCellSize * 11);
-	
-	string fontPath = SDL_GetBasePath() + string("fonts/UbuntuSansMono-Regular.ttf");
+	RenderPlayer(player, renderer, finalOffsetX, offsetY, finalCellSize);
+	RenderMarking(renderer, finalOffsetX - finalCellSize, offsetY - finalCellSize, finalCellSize     );
+	RenderGrid(   renderer, finalOffsetX - finalCellSize, offsetY - finalCellSize, finalCellSize * 11);	
+		
+	string fontPath = SDL_GetBasePath() + string("fonts/font.ttf");
 	TTF_Font* font = TTF_OpenFont(fontPath.c_str(), finalCellSize);
 	if (font) {
 		SDL_Color color = { 255, 255, 255 };
-		string text = "PLAYER";
-		RenderText(
-			renderer,
-			finalCellSize,
-			font,
-			text,
-			color,
-			offsetX + finalCellSize * 5,
-			offsetY + finalCellSize * 10
-		);
+		if (isPlayer) {
+			string text = this->player.GetName();
+			RenderText(
+				renderer,
+				font,
+				text,
+				color,
+				offsetX + finalCellSize * 5.f,
+				offsetY + finalCellSize * 9.9f
+			);
+			int wins = this->player.GetWinCount();
+			int losses = this->player.GetLoseCount();
+			RenderText(
+				renderer,
+				font,
+				"Wins: " + to_string(wins) + " Loses: " + to_string(losses),
+				color,
+				offsetX + finalCellSize * 5.f,
+				offsetY - finalCellSize * 2.1f
+			);
+		}
+		else {
+			string text = this->playerBot.GetName();
+			RenderText(
+				renderer,
+				font,
+				text,
+				color,
+				offsetX + finalCellSize * 17.f,
+				offsetY + finalCellSize * 9.9f
+			);
+			int wins = this->playerBot.GetWinCount();
+			int losses = this->playerBot.GetLoseCount();
+			RenderText(
+				renderer,
+				font,
+				"Wins: " + to_string(wins) + " Loses: " + to_string(losses),
+				color,
+				offsetX + finalCellSize * 17.f,
+				offsetY - finalCellSize * 2.1f
+			);
+		}
 
-		text = "BOT";
-		RenderText(
-			renderer,
-			finalCellSize,
-			font,
-			text,
-			color,
-			offsetX + finalCellSize * 17,
-			offsetY + finalCellSize * 10
-		);
-		TTF_CloseFont(font);
+
 	}
 }
-
 
 bool Game::AttackBotTile(int row, int column) {
 	//auto& player   = IsPlayerTurn() ? this->player : this->playerBot;
@@ -189,6 +214,9 @@ bool Game::AttackBotTile(int row, int column) {
 }
 
 bool Game::BotAttackCycle() {
+	if (IsWon()) {
+		return false;
+	}
 	if (this->playerBot.IsTurn()) {
 		int result = this->playerBot.BotAttack(this->player);
 		if (result == 3 || result == -2 || result == -1) {
@@ -210,13 +238,37 @@ const bool Game::IsPlayerTurn() const {
 	return player.IsTurn();
 }
 
-const int Game::IsWon() const {
+const int Game::IsWon() {
 	if (player.HasLost()) {
+		if (this->canReceiveStats) {
+			this->playerBot.IncreaseWinCount();
+			this->player.IncreaseLoseCount();
+			SaveStats();
+			this->canReceiveStats = false;
+		}
 		return 2;
 	}
 	if (playerBot.HasLost()) {
+		if (this->canReceiveStats) {
+			this->player.IncreaseWinCount();
+			this->playerBot.IncreaseLoseCount();
+			SaveStats();
+			this->canReceiveStats = false;
+		}
 		return 1;
 	}
 	return 0;
 }
 
+void Game::SaveStats() {
+	this->player.SaveStatistics(this->statsFilePath);
+	this->playerBot.SaveStatistics(this->statsFilePath);
+}
+
+void Game::RestartGame() {
+	RandomizeShipLayout(true);
+	RandomizeShipLayout(false);
+	this->player.SetTurn(true);
+	this->playerBot.SetTurn(false);
+	this->canReceiveStats = true;
+}

@@ -5,11 +5,42 @@ const float Player::CalculateFinalSize(float finalCellSize) const {
 }
 
 
-Player::Player() : isTurn(false) {}
+Player::Player() : isTurn(false), playerInfo({"", 0, 0}) {}
 
 bool Player::InitPlayer(SDL_Renderer* renderer, SDL_Surface* tilesSurface, int cellSize, const char* fileName) {
 	return this->tileLogic.InitLogic() && this->tileList.LoadTileSheet(renderer, tilesSurface, cellSize, fileName);
 }
+
+const string Player::GetName() const {
+	return this->playerInfo.name;
+}
+
+const int Player::GetWinCount() const {
+	return this->playerInfo.wins;
+}
+
+const int Player::GetLoseCount() const {
+	return this->playerInfo.losses;
+}
+
+void Player::IncreaseWinCount() {
+	this->playerInfo.wins += 1;
+}
+
+void Player::IncreaseLoseCount() {
+	this->playerInfo.losses += 1;
+}
+
+
+void Player::LoadStatistics(const string& filePath, string& playerName) {
+	auto statistic = LoadStats(filePath, playerName);
+	this->playerInfo = statistic;
+}
+
+void Player::SaveStatistics(const string& filePath) {
+	SaveStats(filePath, this->playerInfo);
+}
+
 
 SDL_Texture* Player::GetTileSheet() const{
 	return this->tileList.GetTileSheet();

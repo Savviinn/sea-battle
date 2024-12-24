@@ -11,23 +11,11 @@ bool TileLogic::InitLogic() {
 }
 
 void TileLogic::ResetTileArray() {
-	bool isOccupied = false;
 	for (auto& row : tileArray) {
-		for (auto tile : row) {
-			if (tile != 0) {
-				isOccupied = true;
-				break;
-			}
-		}
-		if (isOccupied) {
-			break;
-		}
+		fill(row.begin(), row.end(), 0);
 	}
-
-	if (isOccupied) {
-		for (auto& row : tileArray) {
-			fill(row.begin(), row.end(), 0);
-		}
+	for (auto& row : attackedTileArray) {
+		fill(row.begin(), row.end(), false);
 	}
 }
 

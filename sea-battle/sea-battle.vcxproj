@@ -71,22 +71,22 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\IT\!C\sea-battle\SDL3\include;C:\IT\!C\sea-battle\sea-battle\SDL3;$(IncludePath)</IncludePath>
+    <IncludePath>C:\IT\!C\sea-battle\mini;C:\IT\!C\sea-battle\SDL3\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\IT\!C\sea-battle\SDL3\lib;$(LibraryPath)</LibraryPath>
     <SourcePath>$(SourcePath)</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>C:\IT\!C\sea-battle\SDL3\include;C:\IT\!C\sea-battle\sea-battle\SDL3;$(IncludePath)</IncludePath>
+    <IncludePath>C:\IT\!C\sea-battle\mini;C:\IT\!C\sea-battle\SDL3\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\IT\!C\sea-battle\SDL3\lib;$(LibraryPath)</LibraryPath>
     <SourcePath>$(SourcePath)</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\IT\!C\sea-battle\SDL3\include;C:\IT\!C\sea-battle\sea-battle\SDL3;$(IncludePath)</IncludePath>
+    <IncludePath>C:\IT\!C\sea-battle\mini;C:\IT\!C\sea-battle\SDL3\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\IT\!C\sea-battle\SDL3\lib;$(LibraryPath)</LibraryPath>
     <SourcePath>$(SourcePath)</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>C:\IT\!C\sea-battle\SDL3\include;C:\IT\!C\sea-battle\sea-battle\SDL3;$(IncludePath)</IncludePath>
+    <IncludePath>C:\IT\!C\sea-battle\mini;C:\IT\!C\sea-battle\SDL3\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\IT\!C\sea-battle\SDL3\lib;$(LibraryPath)</LibraryPath>
     <SourcePath>$(SourcePath)</SourcePath>
   </PropertyGroup>
@@ -163,23 +163,26 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\INIReader\cpp\INIReader.cpp" />
-    <ClCompile Include="..\INIReader\ini.c" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Options.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Bot.cpp" />
+    <ClCompile Include="Statistics.cpp" />
     <ClCompile Include="TileList.cpp" />
     <ClCompile Include="TileLogic.cpp" />
+    <ClCompile Include="UtilityFunctions.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\INIReader\cpp\INIReader.h" />
+    <ClInclude Include="..\mini\ini.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Options.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Bot.h" />
+    <ClInclude Include="Statistics.h" />
     <ClInclude Include="TileList.h" />
     <ClInclude Include="TileLogic.h" />
+    <ClInclude Include="UtilityFunctions.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

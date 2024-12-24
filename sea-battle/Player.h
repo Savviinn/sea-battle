@@ -4,10 +4,14 @@
 
 #include "TileLogic.h"
 #include "TileList.h"
+#include "Statistics.h"
 
 class Player
 {
 private:
+	friend class Bot;
+
+	StatsInfo playerInfo;
 
 	TileLogic tileLogic;
 	TileList tileList;
@@ -18,9 +22,19 @@ private:
 
 	bool PlaceShip(int startRow, int startCol, int length, bool isHorizontal);
 public:
-	friend class Bot;
 	Player();
 	bool InitPlayer(SDL_Renderer* renderer, SDL_Surface* surface, int cellSize, const char* fileName = nullptr);
+	
+	const string GetName() const;
+
+	const int GetWinCount() const;
+	void	  IncreaseWinCount();
+	const int GetLoseCount() const;
+	void	  IncreaseLoseCount();
+
+	void LoadStatistics(const string& filePath, string& playerName);
+	void SaveStatistics(const string& filePath);
+	
 	SDL_Texture* GetTileSheet() const;
 	
 	void RandomizeShipLayout();
@@ -36,7 +50,7 @@ public:
 
 	void SetTurn(bool turn);
 	const bool IsTurn() const;
-	
 	const bool HasLost() const;
+
 };
 
