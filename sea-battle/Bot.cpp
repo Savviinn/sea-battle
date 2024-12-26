@@ -5,6 +5,7 @@ Bot::Bot() : rdRowDistr(0, TileLogic::GetMapSize() - 1), rdColDistr(0, TileLogic
 	avaibleAttackDirections = {};
 }
 
+
 pair<int, int> Bot::GetRandomCoords() {
 	return { rdRowDistr(gen), rdColDistr(gen) };
 }
@@ -21,18 +22,16 @@ pair<int, int> Bot::GetRandomDirection() {
 
 int Bot::RandomAttackPlayer(Player& player) {
 	auto  [ row, col ] = this->GetRandomCoords();
-	while (player.tileLogic.GetTile(row, col) == 1 || player.tileLogic.GetTile(row, col) == 3) {
+	while (player.IsAttackedTile(row, col)) {
 		tie(row, col) = this->GetRandomCoords();
 	}
 
 	auto attackResult = this->AttackPlayerTile(player, row, col);
-	//bool isDestroyed = player.tileLogic.IsShipDestroyed(row, col).first;
 
-	if (attackResult == 3 && !player.tileLogic.IsShipDestroyed(row, col).first) {
+	if (attackResult == 3 && !player.IsShipDestroyed(row, col)) {
 		this->hittingShip = true;
 		avaibleAttackDirections = attackDirections;
 		hittedShipCoords.push_back({ row, col });
-		//AttackPlayer(player);
 	}
 
 	return attackResult;
@@ -51,13 +50,12 @@ int Bot::AttackPlayer(Player& player) {
 		}
 		
 		int  attackResult = this->AttackPlayerTile(player, newRow, newCol);
-		bool isDestroyed  = player.tileLogic.IsShipDestroyed(newRow, newCol).first;
+		bool isDestroyed  = player.IsShipDestroyed(newRow, newCol);
 
 		if (attackResult == 3 && !isDestroyed) {
 			avaibleAttackDirections.clear();
 			avaibleAttackDirections = { {rowDir,colDir} };
 			hittedShipCoords.push_back({ newRow, newCol });
-			//AttackPlayer(player);
 			return attackResult;
 		}
 		else if (attackResult != 3 && avaibleAttackDirections.size() == 1) {
@@ -67,7 +65,6 @@ int Bot::AttackPlayer(Player& player) {
 			pair<int, int> tempCoords = hittedShipCoords.front();
 			hittedShipCoords.clear();
 			hittedShipCoords.push_back(tempCoords);
-			//AttackPlayer(player);
 			return attackResult;
 		}
 		else if (attackResult != 3) {
@@ -82,8 +79,6 @@ int Bot::AttackPlayer(Player& player) {
 
 		return attackResult;
 	}
-	//avaibleAttackDirections.clear();
-	//hittedShipCoords.clear();
 	return -3;
 }
 

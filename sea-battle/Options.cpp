@@ -4,9 +4,9 @@ void CreateDefaultOptions(const string& filePath) {
 	INIFile file(filePath);
 	INIStructure ini;
 
-	ini["window"]["width"] = "1280";
-	ini["window"]["height"] = "720";
-	ini["window"]["fullscreen"] = "0 ; width, height and borderless will be ignored";
+	ini["window"]["width"] = "1600";
+	ini["window"]["height"] = "900";
+	ini["window"]["fullscreen"] = "1 ; width, height and borderless will be ignored";
 	ini["window"]["borderless"] = "0";
 
 	file.generate(ini);
@@ -31,11 +31,11 @@ bool LoadOptions(const string& filePath, SDL_Window*& window, int& width, int& h
 	INIFile file(filePath);
 	INIStructure ini;
 
-	file.read(ini);
-	if (!ini.has("window")) {
+	if(!file.read(ini) || !ini.has("window")) {
 		CreateDefaultOptions(filePath);
+		file.read(ini);
 	}
-
+	
 	string& full = ini["window"]["fullscreen"];
 	string& bord = ini["window"]["borderless"];
 
@@ -43,7 +43,7 @@ bool LoadOptions(const string& filePath, SDL_Window*& window, int& width, int& h
 	bool borderless = ExtractNumber(bord, 0) == 1;
 
 	string& w = ini["window"]["width"];
-	width = ExtractNumber(w, 1280);
+	width = ExtractNumber(w, 1600);
 	if (width > 7680) {
 		width = 7680;
 	}
@@ -52,7 +52,7 @@ bool LoadOptions(const string& filePath, SDL_Window*& window, int& width, int& h
 	}
 
 	string& h = ini["window"]["height"];
-	height = ExtractNumber(h, 720);
+	height = ExtractNumber(h, 900);
 	if (height > 4320) {
 		height = 4320;
 	}

@@ -1,7 +1,5 @@
 #include "TileLogic.h"
 
-#include <iostream>
-
 TileLogic::TileLogic() {}
 
 bool TileLogic::InitLogic() {
@@ -147,7 +145,7 @@ const vector<vector<int>> TileLogic::GetTileArray() const{
 	return tileArray;
 }
 
-const bool TileLogic::GetAttackedTile(int row, int col) const {
+const bool TileLogic::IsAttackedTile(int row, int col) const {
 	return attackedTileArray[row][col];
 }
 

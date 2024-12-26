@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Game">
+    <Position X="5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AiAIRCgEYACAAAgACBAAQAAEAAgAAAABABAAIAGAgAk=</HashCode>
+      <FileName>Game.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Player">
+    <Position X="9.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AiQAAAEsAAAAAwAAAACUAAAQBEAAADIAAJAgARQABEA=</HashCode>
+      <FileName>Player.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Bot">
+    <Position X="7.25" Y="0.5" Width="1.5" />
+    <InheritanceLine Type="Player">
+      <InheritanceModifierLabel ManuallyPlaced="true">
+        <Position X="0.16" Y="0.135" />
+      </InheritanceModifierLabel>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>CAAAAAABAAAAAEAAACAiQAAgAAIAAAACEEACAAAAAEA=</HashCode>
+      <FileName>Bot.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TileList">
+    <Position X="11.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAACggAAAAAAAAIAAAAAgACACAAAIAAAAAAAAg=</HashCode>
+      <FileName>TileList.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TileLogic">
+    <Position X="11.75" Y="4" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQIARAAAAAgGAgAAAAAAEAAAAAAiQAAAAEAAAAAAAAA=</HashCode>
+      <FileName>TileLogic.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Struct Name="StatsInfo">
+    <Position X="9.5" Y="7.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAIAAAAAAAAAAEAAAAAAAAIAAAAAA=</HashCode>
+      <FileName>Statistics.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

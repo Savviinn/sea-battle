@@ -1,4 +1,5 @@
 #pragma once
+
 #include "Player.h"
 
 class Bot : public Player 
@@ -16,11 +17,12 @@ private:
 
 	pair<int, int> GetRandomCoords();
 	pair<int, int> GetRandomDirection();
+	
+	int RandomAttackPlayer(Player& player);
+	int AttackPlayer(Player& player);
 public:
 	Bot();
 
-	int RandomAttackPlayer(Player& player);
-	int AttackPlayer(Player& player);
 	int BotAttack(Player& player);
 };
 

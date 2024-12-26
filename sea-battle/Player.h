@@ -9,8 +9,6 @@
 class Player
 {
 private:
-	friend class Bot;
-
 	StatsInfo playerInfo;
 
 	TileLogic tileLogic;
@@ -18,6 +16,9 @@ private:
 	bool isTurn;
 
 	void RenderTile(SDL_Renderer* renderer, int tileValue, float offsetX, float offsetY, float finalCellSize);
+	void RenderSpecificTile(SDL_Renderer* renderer, int row, int col, float offsetX = NULL, float offsetY = NULL, float finalCellSize = NULL);
+	void RenderAttackedTile(SDL_Renderer* renderer, int row, int col, float offsetX, float offsetY, float finalCellSize);
+	
 	const float CalculateFinalSize(float finalCellSize) const;
 
 	bool PlaceShip(int startRow, int startCol, int length, bool isHorizontal);
@@ -43,10 +44,10 @@ public:
 	void Render(SDL_Renderer* renderer, float offsetX = NULL, float offsetY = NULL, float finalCellSize = NULL);
 	void RenderAttacked(SDL_Renderer* renderer, float offsetX = NULL, float offsetY = NULL, float finalCellSize = NULL);
 	
-	void RenderSpecificTile(SDL_Renderer* renderer, int row, int col, float offsetX = NULL, float offsetY = NULL, float finalCellSize = NULL);
-	void RenderAttackedTile(SDL_Renderer* renderer, int row, int col, float offsetX, float offsetY, float finalCellSize);
 	
     int AttackPlayerTile(Player& player, int row, int column);
+	bool IsAttackedTile(int row, int column);
+	bool IsShipDestroyed(int row, int column);
 
 	void SetTurn(bool turn);
 	const bool IsTurn() const;

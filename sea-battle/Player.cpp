@@ -88,6 +88,16 @@ int Player::AttackPlayerTile(Player& player, int row, int column) {
 	return player.tileLogic.AttackTile(row, column);
 }
 
+bool Player::IsAttackedTile(int row, int column) {
+	return this->tileLogic.IsAttackedTile(row, column);
+}
+
+
+bool Player::IsShipDestroyed(int row, int column) {
+	return this->tileLogic.IsShipDestroyed(row, column).first;
+}
+
+
 void Player::RenderTile(SDL_Renderer* renderer, int tileValue, float offsetX, float offsetY, float finalCellSize) {
 	auto tileRect = this->tileList.GetTileRect(tileValue);
 	if (tileRect.w <= 0 || tileRect.h <= 0) {
@@ -173,7 +183,7 @@ void Player::RenderAttacked(SDL_Renderer* renderer, float offsetX, float offsetY
 	float finalSize = CalculateFinalSize(finalCellSize);
 	for (int row = 0; row < mapSize; row++) {
 		for (int col = 0; col < mapSize; col++) {
-			auto tileValue = this->tileLogic.GetAttackedTile(row, col) ? this->tileLogic.GetTile(row, col) : 0;
+			auto tileValue = this->tileLogic.IsAttackedTile(row, col) ? this->tileLogic.GetTile(row, col) : 0;
 			RenderTile(
 				renderer,
 				tileValue,
@@ -197,7 +207,7 @@ void Player::RenderAttackedTile(SDL_Renderer* renderer, int row, int col, float 
 	}
 
 	float finalSize = CalculateFinalSize(finalCellSize);
-	auto tileValue = this->tileLogic.GetAttackedTile(row, col) 
+	auto tileValue = this->tileLogic.IsAttackedTile(row, col) 
 		? this->tileLogic.GetTile(row, col) 
 		: 0;
 
