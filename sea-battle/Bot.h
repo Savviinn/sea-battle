@@ -6,8 +6,7 @@ class Bot : public Player
 {
 private:
 	mt19937 gen;
-	uniform_int_distribution<int> rdRowDistr;
-	uniform_int_distribution<int> rdColDistr;
+	uniform_int_distribution<int> rdTileDistr;
 
 	vector<pair<int, int>> attackDirections;
 	

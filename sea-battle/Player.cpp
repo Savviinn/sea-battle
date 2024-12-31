@@ -94,7 +94,7 @@ bool Player::IsAttackedTile(int row, int column) {
 
 
 bool Player::IsShipDestroyed(int row, int column) {
-	return this->tileLogic.IsShipDestroyed(row, column).first;
+	return this->tileLogic.IsShipDestroyed(row, column);
 }
 
 
@@ -143,31 +143,31 @@ void Player::Render(SDL_Renderer* renderer, float offsetX, float offsetY, float 
 	}
 }
 
-void Player::RenderSpecificTile(SDL_Renderer* renderer, int row, int col, float offsetX, float offsetY, float finalCellSize) {
-	int mapSize = TileLogic::GetMapSize();
-	if (row < 0 || row >= mapSize || col < 0 || col >= mapSize) {
-		cerr << "Invalid map size or coordinates" << endl;
-		return;
-	}
-	if (!renderer) {
-		cerr << "Renderer is invalid" << endl;
-		return;
-	}
-	if (!this->GetTileSheet()) {
-		cerr << "Get tile sheet error occured: " << endl;
-		return;
-	}
-
-	float finalSize = CalculateFinalSize(finalCellSize);
-
-	RenderTile(
-		renderer, 
-		this->tileLogic.GetTile(row, col),
-		offsetX + col * finalCellSize, 
-		offsetY + row * finalCellSize, 
-		finalSize
-	);
-}
+//void Player::RenderSpecificTile(SDL_Renderer* renderer, int row, int col, float offsetX, float offsetY, float finalCellSize) {
+//	int mapSize = TileLogic::GetMapSize();
+//	if (row < 0 || row >= mapSize || col < 0 || col >= mapSize) {
+//		cerr << "Invalid map size or coordinates" << endl;
+//		return;
+//	}
+//	if (!renderer) {
+//		cerr << "Renderer is invalid" << endl;
+//		return;
+//	}
+//	if (!this->GetTileSheet()) {
+//		cerr << "Get tile sheet error occured: " << endl;
+//		return;
+//	}
+//
+//	float finalSize = CalculateFinalSize(finalCellSize);
+//
+//	RenderTile(
+//		renderer, 
+//		this->tileLogic.GetTile(row, col),
+//		offsetX + col * finalCellSize, 
+//		offsetY + row * finalCellSize, 
+//		finalSize
+//	);
+//}
 
 void Player::RenderAttacked(SDL_Renderer* renderer, float offsetX, float offsetY, float finalCellSize) {
 	int mapSize = TileLogic::GetMapSize();
@@ -196,29 +196,29 @@ void Player::RenderAttacked(SDL_Renderer* renderer, float offsetX, float offsetY
 }
 
 
-void Player::RenderAttackedTile(SDL_Renderer* renderer, int row, int col, float offsetX, float offsetY, float finalCellSize) {
-	if (!renderer) {
-		cerr << "Renderer is invalid" << endl;
-		return;
-	}
-	if (!this->GetTileSheet()) {
-		cerr << "Get tile sheet error occured: " << endl;
-		return;
-	}
-
-	float finalSize = CalculateFinalSize(finalCellSize);
-	auto tileValue = this->tileLogic.IsAttackedTile(row, col) 
-		? this->tileLogic.GetTile(row, col) 
-		: 0;
-
-	RenderTile(
-		renderer,
-		tileValue,
-		offsetX + col * finalCellSize,
-		offsetY + row * finalCellSize,
-		finalSize
-	);
-}
+//void Player::RenderAttackedTile(SDL_Renderer* renderer, int row, int col, float offsetX, float offsetY, float finalCellSize) {
+//	if (!renderer) {
+//		cerr << "Renderer is invalid" << endl;
+//		return;
+//	}
+//	if (!this->GetTileSheet()) {
+//		cerr << "Get tile sheet error occured: " << endl;
+//		return;
+//	}
+//
+//	float finalSize = CalculateFinalSize(finalCellSize);
+//	auto tileValue = this->tileLogic.IsAttackedTile(row, col) 
+//		? this->tileLogic.GetTile(row, col) 
+//		: 0;
+//
+//	RenderTile(
+//		renderer,
+//		tileValue,
+//		offsetX + col * finalCellSize,
+//		offsetY + row * finalCellSize,
+//		finalSize
+//	);
+//}
 
 void Player::SetTurn(bool turn) {
 	isTurn = turn;
@@ -229,7 +229,7 @@ const bool Player::IsTurn() const{
 }
 
 const bool Player::HasLost() const {
-	for (auto& row : this->tileLogic.GetTileArray()) {
+	for (const auto& row : this->tileLogic.GetTileArray()) {
 		for (int tile : row) {
 			if (tile == 2) {
 				return false;

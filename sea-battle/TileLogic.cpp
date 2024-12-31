@@ -46,7 +46,7 @@ bool TileLogic::PlaceShip(int startRow, int startCol, int length, bool isHorizon
 	return true;
 }
 
-pair<bool, vector<pair<int, int>>> TileLogic::IsShipDestroyed(int row, int column) {
+pair<bool, vector<pair<int, int>>> TileLogic::DestroyedShipTiles(int row, int column) {
 	if (tileArray[row][column] != 3) {
 		return { false, {} };
 	}
@@ -89,26 +89,29 @@ pair<bool, vector<pair<int, int>>> TileLogic::IsShipDestroyed(int row, int colum
 	return { true, destroyedShipCoords };
 }
 
+const bool TileLogic::IsShipDestroyed(int row, int column) {
+	return DestroyedShipTiles(row, column).first;
+}
+
+
 void TileLogic::TryRevealTiles(int row, int column) {
-	auto isDestroyed = IsShipDestroyed(row, column);
+	auto isDestroyed = DestroyedShipTiles(row, column);
 
 	if (isDestroyed.first) {
 		for (const auto& coord : isDestroyed.second) {
 			int currentRow = coord.first;
 			int currentCol = coord.second;
 
-			for (int dr = -1; dr <= 1; ++dr) {
-				for (int dc = -1; dc <= 1; ++dc) {
-					int revealRow = currentRow + dr;
-					int revealCol = currentCol + dc;
+			int topRow = max(0, currentRow - 1);
+			int bottomRow = min(mapSize - 1, currentRow + 1);
+			int leftCol = max(0, currentCol - 1);
+			int rightCol = min(mapSize - 1, currentCol + 1);
 
-					if (revealRow < 0 || revealRow >= mapSize || revealCol < 0 || revealCol >= mapSize) {
-						continue;
-					}
-
-					if (tileArray[revealRow][revealCol] == 0) {
-						attackedTileArray[revealRow][revealCol] = true;
-						tileArray[revealRow][revealCol] += static_cast<int>(attackedTileArray[revealRow][revealCol]);
+			for (int revRow = topRow; revRow <= bottomRow; ++revRow) {
+				for (int revCol = leftCol; revCol <= rightCol; ++revCol) {
+					if (tileArray[revRow][revCol] == 0) {
+						attackedTileArray[revRow][revCol] = true;
+						tileArray[revRow][revCol] += static_cast<int>(attackedTileArray[revRow][revCol]);
 					}
 				}
 			}
@@ -141,14 +144,16 @@ const int TileLogic::GetTile(int row, int column) const {
 	return tileArray[row][column];
 }
 
-const vector<vector<int>> TileLogic::GetTileArray() const{
-	return tileArray;
-}
-
 const bool TileLogic::IsAttackedTile(int row, int col) const {
+	if (row < 0 || row >= mapSize || col < 0 || col >= mapSize) {
+		return false;
+	}
 	return attackedTileArray[row][col];
 }
 
+const vector<vector<int>> TileLogic::GetTileArray() const{
+	return tileArray;
+}
 
 const int TileLogic::GetMapSize() {
 	return mapSize;

@@ -17,6 +17,11 @@ bool Game::LoadGridTileSheet(SDL_Renderer* renderer, SDL_Surface*& surface, int 
 	return gridTileSheet.LoadTileSheet(renderer, surface, cellSize, fileName);
 }
 
+bool Game::LoadFont(const string& fontPath, float fontSize) {
+	string path = fontPath;
+	return this->font = TTF_OpenFont(path.c_str(), fontSize);
+}
+
 bool Game::LoadStatistic(const string& filePath, string& playerName) {
 	this->statsFilePath = filePath;
 
@@ -147,9 +152,8 @@ void Game::Render(SDL_Renderer* renderer, bool isPlayer, float offsetX, float of
 	RenderPlayer(player, renderer, finalOffsetX, offsetY, finalCellSize);
 	RenderMarking(renderer, finalOffsetX - finalCellSize, offsetY - finalCellSize, finalCellSize     );
 	RenderGrid(   renderer, finalOffsetX - finalCellSize, offsetY - finalCellSize, finalCellSize * 11);	
-		
-	string fontPath = SDL_GetBasePath() + string("fonts/font.ttf");
-	TTF_Font* font = TTF_OpenFont(fontPath.c_str(), finalCellSize);
+	
+	auto font = this->font;
 	if (font) {
 		SDL_Color color = { 255, 255, 255 };
 		if (isPlayer) {
@@ -200,16 +204,14 @@ void Game::Render(SDL_Renderer* renderer, bool isPlayer, float offsetX, float of
 }
 
 bool Game::AttackBotTile(int row, int column) {
-	//auto& player   = IsPlayerTurn() ? this->player : this->playerBot;
-	//auto& opponent = IsPlayerTurn() ? this->playerBot : this->player;
 	if (this->player.IsTurn()) {
 		auto result = this->player.AttackPlayerTile(this->playerBot, row, column);
 		if (result == 3 || result == -2 || result == -1) {
 			return true;
 		}
+		SwitchTurn();
 	}
 
-	SwitchTurn();
 	return false;
 }
 

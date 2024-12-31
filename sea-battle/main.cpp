@@ -1,4 +1,3 @@
-#include <SDL3/SDL_ttf.h>
 #include <SDL3/SDL_main.h>
 
 #include "Game.h"
@@ -33,14 +32,12 @@ int SDL_main(int argc, char* argv[])
 	if (!LoadOptions(basePath + optionsName, gameWindow, gameWindowWidth, gameWindowHeight, gameName)) {
 		return -1;
 	}
-
 	if (!TTF_Init()) {
 		cerr << "Failed to initialize TTF: " << SDL_GetError() << endl;
 		TTF_Quit();
 		SDL_Quit();
 		return -1;
 	}
-
 	renderer = SDL_CreateRenderer(gameWindow, NULL);
 	if (!renderer) {
 		SDL_Quit();
@@ -66,6 +63,7 @@ int SDL_main(int argc, char* argv[])
 	SDL_Color colorBlack = { 0, 0, 0 };
 
 	Game game;
+	game.LoadFont(fontPath, finalCellSize);
 
 	SDL_Event e;
 	bool needsRedraw = true;
@@ -208,7 +206,6 @@ int SDL_main(int argc, char* argv[])
 			}
 		}
 		else if (int GameResult = game.IsWon()) {
-
 			SDL_SetRenderDrawColor(renderer, 0, 162, 232, 255);
 			SDL_RenderFillRect(renderer, &gameWindowRect);
 			SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
@@ -247,6 +244,8 @@ int SDL_main(int argc, char* argv[])
 				case SDL_SCANCODE_R:
 					game.RestartGame();
 					needsRedraw = true;
+					randomizeConfirm = false;
+					break;
 				}
 			}
 		}

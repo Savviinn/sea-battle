@@ -12,6 +12,7 @@ private:
 	Bot playerBot;
 	TileList markingTileSheet;
 	TileList gridTileSheet;
+	TTF_Font* font;
 
 	string statsFilePath;
 
@@ -28,6 +29,7 @@ public:
 	bool InitGame(			  SDL_Renderer* renderer, SDL_Surface*& surface, int cellSize, const char* fileName = nullptr);
 	bool LoadMarkingTileSheet(SDL_Renderer* renderer, SDL_Surface*& surface, int cellSize, const char* fileName = nullptr);
 	bool LoadGridTileSheet(	  SDL_Renderer* renderer, SDL_Surface*& surface, int cellSize, const char* fileName = nullptr);
+	bool LoadFont(const string& filePath, float fontSize);
 	bool LoadStatistic(const string& filePath, string& playerName);
 
 	void Render(SDL_Renderer* renderer, bool isPlayer = true, float offsetX = NULL, float offsetY = NULL, float finalCellSize = NULL);

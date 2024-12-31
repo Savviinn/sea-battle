@@ -1,13 +1,13 @@
 #include "Bot.h"
 
-Bot::Bot() : rdRowDistr(0, TileLogic::GetMapSize() - 1), rdColDistr(0, TileLogic::GetMapSize()-1), gen(random_device{}()), hittingShip(false) {
+Bot::Bot() : rdTileDistr(0, TileLogic::GetMapSize() - 1), gen(random_device{}()), hittingShip(false) {
 	attackDirections = { {0, 1}, {1, 0}, {-1, 0}, {0, -1} };
 	avaibleAttackDirections = {};
 }
 
 
 pair<int, int> Bot::GetRandomCoords() {
-	return { rdRowDistr(gen), rdColDistr(gen) };
+	return { rdTileDistr(gen), rdTileDistr(gen) };
 }
 
 pair<int, int> Bot::GetRandomDirection() {

@@ -15,9 +15,11 @@ private:
 	TileList tileList;
 	bool isTurn;
 
+	SDL_Texture* GetTileSheet() const;
+
 	void RenderTile(SDL_Renderer* renderer, int tileValue, float offsetX, float offsetY, float finalCellSize);
-	void RenderSpecificTile(SDL_Renderer* renderer, int row, int col, float offsetX = NULL, float offsetY = NULL, float finalCellSize = NULL);
-	void RenderAttackedTile(SDL_Renderer* renderer, int row, int col, float offsetX, float offsetY, float finalCellSize);
+	//void RenderSpecificTile(SDL_Renderer* renderer, int row, int col, float offsetX = NULL, float offsetY = NULL, float finalCellSize = NULL);
+	//void RenderAttackedTile(SDL_Renderer* renderer, int row, int col, float offsetX, float offsetY, float finalCellSize);
 	
 	const float CalculateFinalSize(float finalCellSize) const;
 
@@ -36,14 +38,10 @@ public:
 	void LoadStatistics(const string& filePath, string& playerName);
 	void SaveStatistics(const string& filePath);
 	
-	SDL_Texture* GetTileSheet() const;
-	
 	void RandomizeShipLayout();
-	
 	
 	void Render(SDL_Renderer* renderer, float offsetX = NULL, float offsetY = NULL, float finalCellSize = NULL);
 	void RenderAttacked(SDL_Renderer* renderer, float offsetX = NULL, float offsetY = NULL, float finalCellSize = NULL);
-	
 	
     int AttackPlayerTile(Player& player, int row, int column);
 	bool IsAttackedTile(int row, int column);
@@ -52,6 +50,5 @@ public:
 	void SetTurn(bool turn);
 	const bool IsTurn() const;
 	const bool HasLost() const;
-
 };
 
